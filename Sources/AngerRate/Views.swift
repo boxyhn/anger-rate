@@ -6,7 +6,9 @@ import AngerCore
 struct MainPanel: View {
     @ObservedObject var model: AppModel
 
-    private var score: Int { Int(model.score.rounded(.down)) }
+    private var displayedTemperature: String {
+        TemperatureDisplay.formatted(score: model.score, unit: model.temperatureUnit)
+    }
     private var level: AngerLevel { AngerLevel(score: model.score) }
     private var recentEvents: [ScoredEvent] {
         model.events
@@ -32,16 +34,16 @@ struct MainPanel: View {
         .frame(width: 360, height: 500)
         .background(Color(nsColor: .windowBackgroundColor))
         .accessibilityElement(children: .contain)
-        .accessibilityLabel("분노 rate 패널")
+        .accessibilityLabel("대화 온도 패널")
     }
 
     private var scoreHeader: some View {
         VStack(spacing: 5) {
-            Text("\(score)°")
+            Text(displayedTemperature)
                 .font(.system(size: 58, weight: .semibold, design: .rounded))
                 .monospacedDigit()
                 .foregroundStyle(level.color)
-                .accessibilityLabel("현재 분노 rate \(score)")
+                .accessibilityLabel("현재 대화 온도 \(displayedTemperature)")
 
             Text(level.label)
                 .font(.headline)
@@ -63,30 +65,38 @@ struct MainPanel: View {
             Chart(chartPoints) { point in
                 AreaMark(
                     x: .value("시간", point.date),
-                    y: .value("분노 rate", point.score)
+                    yStart: .value("기준 온도", TemperatureDisplay.range(unit: model.temperatureUnit).lowerBound),
+                    yEnd: .value("대화 온도", point.temperature)
                 )
                 .foregroundStyle(level.color.opacity(0.12))
 
                 LineMark(
                     x: .value("시간", point.date),
-                    y: .value("분노 rate", point.score)
+                    y: .value("대화 온도", point.temperature)
                 )
                 .foregroundStyle(level.color)
                 .lineStyle(StrokeStyle(lineWidth: 2, lineCap: .round, lineJoin: .round))
             }
-            .chartYScale(domain: 0...100)
+            .chartYScale(domain: TemperatureDisplay.range(unit: model.temperatureUnit))
             .chartYAxis {
-                AxisMarks(values: [0, 50, 100])
+                AxisMarks(values: .automatic(desiredCount: 3)) { value in
+                    AxisGridLine()
+                    if let temperature = value.as(Double.self) {
+                        AxisValueLabel {
+                            Text("\(temperature, specifier: "%.0f")\(model.temperatureUnit.symbol)")
+                        }
+                    }
+                }
             }
             .chartXAxis {
                 AxisMarks(values: .stride(by: .minute, count: 10)) {
-                    AxisValueLabel(format: .dateTime.minute())
+                    AxisValueLabel(format: .dateTime.hour().minute())
                     AxisGridLine()
                 }
             }
             .frame(height: 110)
-            .accessibilityLabel("최근 30분 분노 rate 그래프")
-            .accessibilityValue("현재 \(score), 최대 100")
+            .accessibilityLabel("최근 30분 대화 온도 그래프")
+            .accessibilityValue("현재 \(displayedTemperature), 끓는점 \(TemperatureDisplay.formatted(score: 100, unit: model.temperatureUnit))")
         }
         .padding(12)
         .background(.quaternary.opacity(0.35), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
@@ -110,7 +120,7 @@ struct MainPanel: View {
                         Text(event.reasons.joined(separator: ", "))
                             .lineLimit(1)
                         Spacer(minLength: 4)
-                        Text("+\(Int(event.points.rounded()))")
+                        Text(TemperatureDisplay.formattedRise(points: event.points, unit: model.temperatureUnit))
                             .monospacedDigit()
                             .foregroundStyle(.secondary)
                     }
@@ -172,10 +182,13 @@ struct MainPanel: View {
             let visibleEvents = model.events.filter { $0.timestamp <= date }
             return ScorePoint(
                 date: date,
-                score: ScoreEngine.score(
-                    events: visibleEvents,
-                    at: date,
-                    halfLife: model.halfLifeMinutes * 60
+                temperature: TemperatureDisplay.value(
+                    score: ScoreEngine.score(
+                        events: visibleEvents,
+                        at: date,
+                        halfLife: model.halfLifeMinutes * 60
+                    ),
+                    unit: model.temperatureUnit
                 )
             )
         }
@@ -290,7 +303,7 @@ struct PreferencesView: View {
                 ScrollView {
                     LazyVStack(spacing: 0) {
                         ForEach(ProfanityLexicon.rules) { rule in
-                            BaselineRuleRow(rule: rule)
+                            BaselineRuleRow(rule: rule, unit: model.temperatureUnit)
                             if rule.id != ProfanityLexicon.rules.last?.id {
                                 Divider()
                             }
@@ -326,7 +339,7 @@ struct PreferencesView: View {
                         .padding(.vertical, 24)
                 } else {
                     ForEach(editableRules) { $rule in
-                        RuleEditorRow(rule: $rule) {
+                        RuleEditorRow(rule: $rule, unit: model.temperatureUnit) {
                             removeRule(id: rule.id)
                         }
                     }
@@ -370,15 +383,27 @@ struct PreferencesView: View {
                 } maximumValueLabel: {
                     Text("15분")
                 }
-                Text("아무 신호가 없으면 약 \(Int(model.halfLifeMinutes))분마다 수치가 절반으로 줄어듭니다.")
+                Text("아무 신호가 없으면 약 \(Int(model.halfLifeMinutes))분마다 기준 온도(\(TemperatureDisplay.formatted(score: 0, unit: model.temperatureUnit)))를 넘는 부분이 절반으로 줄어듭니다.")
                     .font(.callout)
                     .foregroundStyle(.secondary)
             }
 
-            Section("100 도달 알림") {
+            Section("온도 표시") {
+                Picker("단위", selection: $model.temperatureUnit) {
+                    ForEach(TemperatureUnit.allCases, id: \.self) { unit in
+                        Text("\(unit.label) (\(unit.symbol))").tag(unit)
+                    }
+                }
+                .pickerStyle(.segmented)
+                Text("내부 분노 rate 0–100을 \(TemperatureDisplay.formatted(score: 0, unit: model.temperatureUnit))–\(TemperatureDisplay.formatted(score: 100, unit: model.temperatureUnit))의 대화 온도로 표시합니다.")
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+            }
+
+            Section("끓는점 도달 알림") {
                 Toggle("알림 사용", isOn: $model.notificationsEnabled)
                 Button("알림 권한 확인") { model.requestNotifications() }
-                Text("100에 처음 도달할 때 한 번 알립니다. 50 이하로 식은 뒤 다시 100에 도달하면 다시 알려요.")
+                Text("대화 온도가 \(TemperatureDisplay.formatted(score: 100, unit: model.temperatureUnit))에 처음 도달할 때 한 번 알립니다. 충분히 식은 뒤 다시 끓는점에 닿으면 다시 알려요.")
                     .font(.callout)
                     .foregroundStyle(.secondary)
             }
@@ -388,7 +413,7 @@ struct PreferencesView: View {
                 Text("점수 이벤트와 개인 기준만 저장하며, 메시지 원문은 저장하지 않습니다.")
                     .font(.callout)
                     .foregroundStyle(.secondary)
-                Text("표시되는 수치는 언어 신호의 누적값이며 감정이나 건강 상태에 대한 진단이 아닙니다.")
+                Text("대화 온도는 언어 신호를 온도에 빗댄 값이며 실제 체온이나 감정·건강 상태의 진단이 아닙니다.")
                     .font(.callout)
                     .foregroundStyle(.secondary)
             }
@@ -488,6 +513,7 @@ struct PreferencesView: View {
 
 private struct RuleEditorRow: View {
     @Binding var rule: LanguageRule
+    let unit: TemperatureUnit
     let remove: () -> Void
 
     var body: some View {
@@ -512,12 +538,12 @@ private struct RuleEditorRow: View {
                     .accessibilityLabel("판단 이유")
                 Slider(value: $rule.weight, in: 5...50, step: 1)
                     .frame(width: 130)
-                    .accessibilityLabel("점수 영향")
-                    .accessibilityValue("\(Int(rule.weight))점")
-                Text("+\(Int(rule.weight))")
+                    .accessibilityLabel("대화 온도 상승")
+                    .accessibilityValue(TemperatureDisplay.formattedRise(points: rule.weight, unit: unit))
+                Text(TemperatureDisplay.formattedRise(points: rule.weight, unit: unit))
                     .font(.callout.monospacedDigit())
                     .foregroundStyle(.secondary)
-                    .frame(width: 34, alignment: .trailing)
+                    .frame(width: 62, alignment: .trailing)
                 Text(severityLabel)
                     .font(.caption.weight(.medium))
                     .foregroundStyle(.secondary)
@@ -536,6 +562,7 @@ private struct RuleEditorRow: View {
 
 private struct BaselineRuleRow: View {
     let rule: LanguageRule
+    let unit: TemperatureUnit
 
     var body: some View {
         HStack(alignment: .firstTextBaseline, spacing: 10) {
@@ -546,19 +573,19 @@ private struct BaselineRuleRow: View {
                 .font(.caption)
                 .foregroundStyle(.secondary)
             Spacer(minLength: 8)
-            Text("+\(Int(rule.weight))")
+            Text(TemperatureDisplay.formattedRise(points: rule.weight, unit: unit))
                 .font(.caption.monospacedDigit())
                 .foregroundStyle(.secondary)
         }
         .padding(.vertical, 6)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(rule.phrase), \(rule.reason), \(Int(rule.weight))점")
+        .accessibilityLabel("\(rule.phrase), \(rule.reason), \(TemperatureDisplay.formattedRise(points: rule.weight, unit: unit))")
     }
 }
 
 private struct ScorePoint: Identifiable {
     let date: Date
-    let score: Double
+    let temperature: Double
     var id: Date { date }
 }
 

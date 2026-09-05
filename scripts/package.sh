@@ -28,7 +28,8 @@ fi
 
 CONTENTS="$APP_BUNDLE/Contents"
 MACOS_DIR="$CONTENTS/MacOS"
-mkdir -p "$MACOS_DIR"
+mkdir -p "$MACOS_DIR" "$CONTENTS/Resources"
+"$SCRIPT_DIR/build-icon.sh" "$CONTENTS/Resources/AppIcon.icns"
 /usr/bin/ditto "$EXECUTABLE" "$MACOS_DIR/AngerRate"
 chmod 755 "$MACOS_DIR/AngerRate"
 
@@ -39,6 +40,7 @@ PLIST="$CONTENTS/Info.plist"
 /usr/bin/plutil -insert CFBundleExecutable -string AngerRate "$PLIST"
 /usr/bin/plutil -insert CFBundleIdentifier -string app.angerrate.desktop "$PLIST"
 /usr/bin/plutil -insert CFBundleInfoDictionaryVersion -string 6.0 "$PLIST"
+/usr/bin/plutil -insert CFBundleIconFile -string AppIcon "$PLIST"
 /usr/bin/plutil -insert CFBundleName -string AngerRate "$PLIST"
 /usr/bin/plutil -insert CFBundlePackageType -string APPL "$PLIST"
 /usr/bin/plutil -insert CFBundleShortVersionString -string 0.1.0 "$PLIST"

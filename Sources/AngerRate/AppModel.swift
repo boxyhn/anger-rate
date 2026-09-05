@@ -18,6 +18,7 @@ import AngerCore
     @Published var devices: [DeviceSnapshot] = []
     @Published var halfLifeMinutes: Double = 5
     @Published var notificationsEnabled: Bool { didSet { defaults.set(notificationsEnabled, forKey: "notifications") } }
+    @Published var temperatureUnit: TemperatureUnit { didSet { defaults.set(temperatureUnit.rawValue, forKey: "temperatureUnit") } }
     @Published var scannedFiles = 0
     @Published var errorMessage: String?
     @Published var selectedProvider = "codex"
@@ -52,6 +53,7 @@ import AngerCore
         isMonitoring = d.bool(forKey: "setupComplete") && !d.bool(forKey: "paused")
         syncPath = d.string(forKey: "syncPath") ?? ""
         notificationsEnabled = d.object(forKey: "notifications") as? Bool ?? true
+        temperatureUnit = TemperatureUnit(rawValue: d.string(forKey: "temperatureUnit") ?? "") ?? .celsius
         gate = d.data(forKey: "alertGate").flatMap { try? JSONDecoder().decode(AlertGate.self, from: $0) } ?? AlertGate()
         if preview {
             hasCompletedSetup = true
@@ -305,11 +307,12 @@ import AngerCore
     }
     private func sendAlert() {
         guard notificationsEnabled, Bundle.main.bundleIdentifier != nil else { return }
+        let displayedTemperature = TemperatureDisplay.formatted(score: 100, unit: temperatureUnit)
         UNUserNotificationCenter.current().getNotificationSettings { settings in
             guard settings.authorizationStatus == .authorized else { return }
             let content = UNMutableNotificationContent()
-            content.title = "분노 rate 100°"
-            content.body = "조금 뜨거워졌어요. 잠깐 쉬어갈까요?"
+            content.title = "대화 온도 \(displayedTemperature)"
+            content.body = "끓는점에 닿았어요. 잠깐 쉬어갈까요?"
             content.sound = .default
             UNUserNotificationCenter.current().add(UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: nil))
         }

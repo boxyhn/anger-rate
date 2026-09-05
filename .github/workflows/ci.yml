@@ -1,0 +1,25 @@
+name: macOS checks
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test-and-package:
+    runs-on: macos-15
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Toolchain
+        run: swift --version
+      - name: Unit tests (synthetic data)
+        run: swift test
+      - name: Build app, icon, and DMG
+        run: ./scripts/package.sh
+      - name: App smoke check
+        run: dist/AngerRate.app/Contents/MacOS/AngerRate --smoke-test

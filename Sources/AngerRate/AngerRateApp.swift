@@ -45,9 +45,9 @@ import AngerCore
         MenuBarExtra {
             MainPanel(model: model)
         } label: {
-            Text(model.isMonitoring ? "\(Int(model.score.rounded(.down)))°" : "–°")
+            Text(model.isMonitoring ? TemperatureDisplay.formatted(score: model.score, unit: model.temperatureUnit) : "–\(model.temperatureUnit.symbol)")
                 .monospacedDigit()
-                .accessibilityLabel("분노 rate \(Int(model.score)) / 100")
+                .accessibilityLabel(model.isMonitoring ? "대화 온도 \(TemperatureDisplay.formatted(score: model.score, unit: model.temperatureUnit))" : "대화 온도 감지 일시 정지")
         }.menuBarExtraStyle(.window)
     }
 }
