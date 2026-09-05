@@ -175,16 +175,27 @@ import AngerCore
         analysisTask = Task { [weak self] in
             guard let self else { return }
             do {
-                let messages = await Task.detached(priority: .utility) { SessionScanner().historicalMessages(limit: 400) }.value
+                let sample = await Task.detached(priority: .utility) {
+                    let reader = SessionScanner()
+                    let messages = reader.historicalMessages(limit: 400)
+                    return (messages, reader.historicalArchiveMessageCount)
+                }.value
+                let messages = sample.0
                 try Task.checkCancellation()
                 guard !messages.isEmpty else { throw AppError.message("분석할 세션을 찾지 못했어요. Codex나 Claude Code로 대화한 뒤 다시 시도해 주세요.") }
-                self.analysisStatus = "\(messages.count)개 메시지를 \(provider == "codex" ? "Codex" : "Claude")로 분석 중이에요. 기존 계정 사용량이 차감될 수 있어요."
-                let draft = try await self.calibration.analyze(messages: messages, provider: provider)
+                self.analysisStatus = "아카이브 \(sample.1)개를 포함한 \(messages.count)개 메시지를 \(provider == "codex" ? "Codex" : "Claude")로 분석 중이에요. 기존 계정 사용량이 차감될 수 있어요."
+                var draft = try await self.calibration.analyze(messages: messages, provider: provider)
+                let personalizedPhrases = Set(draft.rules.map { $0.phrase.lowercased() })
+                let baseline = PersonalProfile.starter.rules.filter { !personalizedPhrases.contains($0.phrase.lowercased()) }.map { rule -> LanguageRule in
+                    var copy = rule; copy.id = UUID().uuidString; copy.reason = "기본 기준 · " + copy.reason; return copy
+                }
+                // Sparse histories must not erase recognition of common strong profanity.
+                draft.rules += baseline.prefix(max(0, 80 - draft.rules.count))
                 try Task.checkCancellation()
                 self.draftProfile = draft
                 try FileManager.default.createDirectory(at: self.directory, withIntermediateDirectories: true)
                 try JSONEncoder().encode(draft).write(to: self.directory.appendingPathComponent("draft-profile.json"), options: .atomic)
-                self.analysisStatus = "개인 기준 \(draft.rules.count)개를 제안했어요. 확인하고 적용해 주세요."
+                self.analysisStatus = "아카이브 메시지 \(sample.1)개 포함, 총 \(messages.count)개를 확인했어요. 개인 기준 \(draft.rules.count)개를 검토해 주세요."
             } catch is CancellationError { self.analysisStatus = "분석을 취소했어요." }
             catch { self.errorMessage = error.localizedDescription; self.analysisStatus = "분석하지 못했어요. 로그인 상태를 확인하거나 다른 도구로 다시 시도해 주세요." }
             self.isAnalyzing = false

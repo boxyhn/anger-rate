@@ -135,6 +135,7 @@ public final class SessionScanner: @unchecked Sendable {
     private let maxIncrementalRead = 2 * 1_024 * 1_024
 
     public private(set) var scannedFileCount = 0
+    public private(set) var historicalArchiveMessageCount = 0
     public private(set) var lastError: String?
 
     public init(roots: [URL] = SessionScanner.defaultRoots()) {
@@ -217,9 +218,24 @@ public final class SessionScanner: @unchecked Sendable {
     public func historicalMessages(limit: Int = 400) -> [SessionMessage] {
         guard limit > 0 else { return [] }
         lastError = nil
-        let files = sessionFiles(in: historyRoots)
-        scannedFileCount = files.count
-        let selected = Array(files.prefix(min(files.count, 40)))
+        // Stratify by log root so old archives cannot be crowded out by live files.
+        let groups = historyRoots.map { sessionFiles(in: [$0]) }
+        scannedFileCount = Set(groups.flatMap { $0 }.map(\.path)).count
+        var selected: [URL] = []
+        var selectedPaths = Set<String>()
+        var depth = 0
+        while selected.count < 160 {
+            var added = false
+            for group in groups where depth < group.count {
+                let file = group[depth]
+                if selectedPaths.insert(file.path).inserted { selected.append(file); added = true }
+                if selected.count == 160 { break }
+            }
+            if !added { break }
+            depth += 1
+        }
+        historicalArchiveMessageCount = 0
+        var archiveIDs = Set<String>()
         var perFile: [[SessionMessage]] = []
 
         for file in selected {
@@ -231,6 +247,7 @@ public final class SessionScanner: @unchecked Sendable {
                 }
                 let parsed = collapseCopies(candidates, trackRecent: false).sorted { $0.timestamp > $1.timestamp }
                 if !parsed.isEmpty { perFile.append(parsed) }
+                if file.pathComponents.contains("archived_sessions") { archiveIDs.formUnion(parsed.map(\.id)) }
             } catch {
                 lastError = "\(file.lastPathComponent): \(error.localizedDescription)"
             }
@@ -248,7 +265,9 @@ public final class SessionScanner: @unchecked Sendable {
             if !added { break }
             index += 1
         }
-        return deduplicated(result).prefix(limit).map { $0 }
+        let output = Array(deduplicated(result).prefix(limit))
+        historicalArchiveMessageCount = output.filter { archiveIDs.contains($0.id) }.count
+        return output
     }
 
     private func sessionFiles() -> [URL] {

@@ -3,6 +3,23 @@ import XCTest
 @testable import AngerCore
 
 final class SessionScannerTests: XCTestCase {
+    func testOldArchiveIsNotCrowdedOutByManyRecentLiveFiles() throws {
+        let fixture = try FixtureDirectory(name: ".codex-test/sessions")
+        defer { fixture.remove() }
+        for index in 0..<161 {
+            try fixture.writeLine(codexLine(text: "active-\(index)", second: 1), to: fixture.url.appendingPathComponent("s-\(index).jsonl"))
+        }
+        let archive = fixture.url.deletingLastPathComponent().appendingPathComponent("archived_sessions")
+        try FileManager.default.createDirectory(at: archive, withIntermediateDirectories: true)
+        let archivedFile = archive.appendingPathComponent("old.jsonl")
+        try fixture.writeLine(codexLine(text: "archive-signal", second: 2), to: archivedFile)
+        try FileManager.default.setAttributes([.modificationDate: Date(timeIntervalSince1970: 1)], ofItemAtPath: archivedFile.path)
+        let scanner = SessionScanner(roots: [fixture.url])
+        let sample = scanner.historicalMessages(limit: 400)
+        XCTAssertTrue(sample.contains { $0.text == "archive-signal" })
+        XCTAssertEqual(scanner.historicalArchiveMessageCount, 1)
+    }
+
     func testCodexParserAcceptsBothUserRecordShapesAndProducesStableID() throws {
         let valid = try jsonData([
             "timestamp": "2026-09-05T01:02:03.123Z",
