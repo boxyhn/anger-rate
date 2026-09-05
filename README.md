@@ -10,8 +10,8 @@
 </p>
 <p align="center">English · <a href="README.ko.md">한국어</a> · <a href="https://github.com/boxyhn/anger-rate/releases/tag/v0.1.0">Download v0.1.0</a> · <a href="#getting-started">Get started</a> · <a href="CONTRIBUTING.md">Contribute</a></p>
 
-<p align="center"><img src="docs/flame-demo.gif" width="680" alt="AngerRate flame moving from a calm candle to a fast roaring flame as the score rises from 15 to 100, then cooling down"></p>
-<p align="center"><sub>The flame grows and accelerates as language signals accumulate, then settles as the score cools.</sub></p>
+<p align="center"><img src="docs/launch/anger-rate-en.gif" width="680" alt="Synthetic coding messages trigger real scoring, animated flame changes, and one illustrated breather alert"></p>
+<p align="center"><sub>Staged demo using sample messages and the real scoring engine and flame renderer. Notification is illustrated; cooldown jumps ahead 10 minutes. <a href="docs/launch/anger-rate-en.mp4">Watch MP4</a>.</sub></p>
 <p align="center"><img src="docs/panel-preview-en.png" width="360" alt="AngerRate menu panel in English with a monochrome flame, current score, recent trend, and reasons"></p>
 <p align="center"><sub>Actual app UI rendered with synthetic data.</sub></p>
 

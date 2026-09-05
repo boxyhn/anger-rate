@@ -5,6 +5,16 @@ import AngerCore
 @main struct AngerRateApp: App {
     @StateObject private var model: AppModel
     init() {
+        if let index = CommandLine.arguments.firstIndex(of: "--render-demo"), CommandLine.arguments.count > index + 1 {
+            NSApplication.shared.setActivationPolicy(.accessory)
+            do {
+                try DemoRenderer.render(to: URL(fileURLWithPath: CommandLine.arguments[index + 1]), korean: CommandLine.arguments.contains("--korean"))
+                exit(0)
+            } catch {
+                fputs("Demo export failed: \(error)\n", stderr)
+                exit(1)
+            }
+        }
         if CommandLine.arguments.contains("--scan-check") {
             let scanner = SessionScanner()
             let start = Date()

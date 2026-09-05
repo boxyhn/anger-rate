@@ -1,0 +1,34 @@
+{
+  "alertCount" : 1,
+  "engine" : "ScoreEngine + AlertGate",
+  "fps" : 24,
+  "frames" : 360,
+  "screenRecording" : false,
+  "syntheticMessages" : true,
+  "timeline" : [
+    {
+      "alert" : false,
+      "score" : 30,
+      "simulatedElapsedSeconds" : 3,
+      "videoSecond" : 3
+    },
+    {
+      "alert" : false,
+      "score" : 64.361690373096877,
+      "simulatedElapsedSeconds" : 5,
+      "videoSecond" : 5
+    },
+    {
+      "alert" : true,
+      "score" : 100,
+      "simulatedElapsedSeconds" : 7,
+      "videoSecond" : 7
+    },
+    {
+      "alert" : false,
+      "score" : 24.770015331630734,
+      "simulatedElapsedSeconds" : 611,
+      "videoSecond" : 11
+    }
+  ]
+}

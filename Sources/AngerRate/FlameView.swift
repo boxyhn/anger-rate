@@ -40,7 +40,7 @@ struct FlameView: View {
     @State private var previousScore = 0.0
 }
 
-private enum FlameGeometry {
+enum FlameGeometry {
     static func paths(level: Int, phase: Double, score: Double) -> (Path, Path) {
         let strength = 1 + pow(min(100, max(0, score)) / 100, 2) * 0.65
         let a = sin(phase) * strength, b = sin(phase - 1.2) * strength, c = sin(phase + 1.5) * strength

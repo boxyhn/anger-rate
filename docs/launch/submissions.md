@@ -4,7 +4,7 @@
 
 - Repository: https://github.com/boxyhn/anger-rate
 - Public preview: https://github.com/boxyhn/anger-rate/releases/tag/v0.1.0
-- Demo: ../flame-demo.gif (prototype animation, not a screen recording of live scoring)
+- Demo: [English MP4](anger-rate-en.mp4) · [한국어 MP4](anger-rate-ko.mp4). Staged composition with synthetic messages, production scoring and flame geometry; illustrated notification, explicitly labeled 10-minute time jump. Not a screen recording.
 
 ## Channel status
 

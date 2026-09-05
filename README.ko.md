@@ -2,8 +2,8 @@
 <h1 align="center">AngerRate</h1>
 <p align="center"><strong>열이 오르는 순간을 알아차리고, 잠깐 쉬어가세요.</strong><br>Codex · Claude Code 사용자를 위한 macOS 메뉴 막대 앱</p>
 <p align="center"><a href="README.md">English</a> · 한국어 · <a href="https://github.com/boxyhn/anger-rate/releases/tag/v0.1.0">v0.1.0 다운로드</a> · <a href="#빠른-시작">설치</a> · <a href="CONTRIBUTING.md">기여하기</a></p>
-<p align="center"><img src="docs/flame-demo.gif" width="680" alt="AngerRate 점수가 15에서 100으로 오를수록 촛불에서 타오르는 불로 빠르게 변했다가 다시 잦아드는 모습"></p>
-<p align="center"><sub>언어 신호가 쌓이면 불꽃이 커지고 빨라지며, 점수가 식으면 다시 잦아듭니다.</sub></p>
+<p align="center"><img src="docs/launch/anger-rate-ko.gif" width="680" alt="예시 메시지에 실제 점수 엔진과 불꽃 렌더러가 반응하고 휴식 알림을 한 번 보여 주는 연출 데모"></p>
+<p align="center"><sub>예시 대화에 실제 점수 엔진과 불꽃 렌더러를 사용한 연출 데모입니다. 알림은 재현했으며, 식는 장면은 10분 뒤로 전환됩니다. <a href="docs/launch/anger-rate-ko.mp4">MP4 보기</a>.</sub></p>
 <p align="center"><img src="docs/panel-preview.png" width="360" alt="단색 불꽃, 현재 점수, 최근 변화와 감지 이유를 보여 주는 AngerRate 한국어 메뉴 패널"></p>
 <p align="center"><sub>합성 데이터로 렌더링한 실제 앱 화면입니다.</sub></p>
 
