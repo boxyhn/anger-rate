@@ -26,8 +26,8 @@ import AngerCore
             let app = NSApplication.shared
             app.setActivationPolicy(.accessory)
             let model = AppModel(preview: true)
-            let view = NSHostingView(rootView: MainPanel(model: model))
-            view.frame = NSRect(x: 0, y: 0, width: 400, height: 540)
+            let view = NSHostingView(rootView: CommandLine.arguments.contains("--settings-preview") ? AnyView(PreferencesView(model: model)) : AnyView(MainPanel(model: model)))
+            view.frame = CommandLine.arguments.contains("--settings-preview") ? NSRect(x: 0, y: 0, width: 680, height: 760) : NSRect(x: 0, y: 0, width: 400, height: 540)
             let window = NSWindow(contentRect: view.frame, styleMask: [.borderless], backing: .buffered, defer: false)
             window.contentView = view
             view.layoutSubtreeIfNeeded()
@@ -45,9 +45,8 @@ import AngerCore
         MenuBarExtra {
             MainPanel(model: model)
         } label: {
-            Text(model.isMonitoring ? TemperatureDisplay.formatted(score: model.score, unit: model.temperatureUnit) : "–\(model.temperatureUnit.symbol)")
-                .monospacedDigit()
-                .accessibilityLabel(model.isMonitoring ? "대화 온도 \(TemperatureDisplay.formatted(score: model.score, unit: model.temperatureUnit))" : "대화 온도 감지 일시 정지")
+            FlameMenuLabel(score: model.score, isAnimating: model.isMonitoring)
+                .accessibilityLabel(AppText(model.appLanguage)("분노 정도", "Anger level") + " \(Int(model.score))")
         }.menuBarExtraStyle(.window)
     }
 }

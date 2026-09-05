@@ -1,45 +1,27 @@
-# AngerRate UI 설계
+# AngerRate interface
 
-## 제품 역할
+## Purpose
 
-AngerRate는 감정을 진단하지 않는다. 내부적으로 사용자의 언어가 평소보다 거칠어지는 흐름을 0–100 점수로 계산하고, 화면에서는 이를 체온계에 빗댄 `대화 온도`로 보여 준다. 100점인 끓는점에 도달했을 때 한 번 알려 스스로 상태를 알아차리게 한다. 첫 버전의 성공 기준은 알림 이후 사용자가 잠깐 멈추고 쿨다운하는 것이다.
+Notice the heat. Take a moment.
 
-## 화면 구조
+AngerRate makes rising language-based anger signals visible and offers one small pause at score 100. It is a heuristic, not an emotional or medical diagnosis. Calm is expressed through a gently moving flame and its return to a candle as the score decays.
 
-메뉴 막대에는 현재 대화 온도를 `36.5°C` 형태로 계속 표시한다. 사용자는 설정에서 화씨로 바꿀 수 있다. 메뉴를 열면 약 360×500 크기의 패널이 나타난다.
+## Flame
 
-1. 현재 수치와 상태 단계: 큰 둥근 온도 숫자, `감지된 신호가 적어요`·`조금 뜨거워졌어요`·`많이 뜨거워졌어요`·`잠깐 쉬어갈 때예요` 문구를 함께 표시한다.
-2. 최근 30분 그래프: 시간 감쇠를 포함한 흐름을 선택한 온도 단위로 보여 준다.
-3. 상승 이유: 최근 감지 이벤트의 판단 이유와 반영 온도를 최대 세 개 보여 준다. 메시지 원문은 보여 주거나 저장하지 않는다.
-4. 상태와 동작: 감지 상태, 일시 정지/재개, 설정, 앱 종료를 제공한다.
+The approved monochrome vector design has three silhouettes: candle (0–32), emerging fire (33–65), and strong fire (66–100). Middle and strong shapes use fixed body scales of 0.73 and 0.95. Shape control points move independently; the whole icon does not bounce or pulse in size. A continuous phase prevents restarts as intensity changes.
 
-설정 창은 첫 진단, 개인 기준, 동작, 기기의 네 탭으로 나뉘며 내용에 맞춰 크기를 조절할 수 있다. 첫 진단은 이 Mac에서 접근 가능한 Codex·Claude Code의 현재 세션과 로컬 아카이브 전체를 한 번 점검한다. 다른 Mac이나 클라우드에만 있는 기록을 자동으로 내려받지는 않는다. 이미 로그인된 Codex 또는 Claude Code로 대표 문맥과 사용 통계를 분석하며, 기존 계정 사용량이 차감될 수 있음을 실행 전에 알린다. 진행 중에는 커버리지 상태와 취소 동작, 실패 시 복사 가능한 오류를 표시한다. AI가 제안한 개인 신호는 자동 적용하지 않고 사용자가 검토한 뒤 적용한다. 진단을 건너뛰는 동작은 `기본 기준으로 시작`이라고 명시해 무엇을 선택하는지 알 수 있게 한다.
+Cadence interpolates through 0.42, 0.8, 1.4, 2.1, and 3.2 cycles per second at scores 0, 33, 66, 85, and 100. Higher scores also increase tip excursion. The menu bar uses a template image for light and dark appearance. Reduce Motion and monitoring pause stop animation. The approved app icon is retained.
 
-한·영 기본 욕설 사전은 항상 적용한다. 개인 기준 탭 상단에서 기본 사전의 개수를 강조하고, 펼치면 표현·판단 이유·상승 온도를 읽기 전용 목록으로 확인할 수 있다. 개인 신호는 기본 욕설 외에 사용자에게서 분노와 함께 나타날 가능성이 있는 표현이며, 표현·판단 이유·내부 가중치·활성 여부로 구성한다. UI에는 가중치를 선택한 단위의 상승 온도와 약함·중간·강함 단계로 표시한다. 사용자는 개인 신호를 추가·삭제하거나 제안을 편집하고 적용할 수 있으며, 아직 적용하지 않은 변경은 화면에 명시한다. 진단 결과 개인 신호가 0개여도 정상이며 기본 욕설 기준은 그대로 동작한다. 시간 감쇠 반감기는 2–15분, 끓는점 도달 알림은 별도로 켜고 권한을 확인할 수 있다. 기기 탭에서는 동기화 폴더를 선택하거나 연결을 끊고, 각 기기의 마지막 반영 시점을 확인한다.
+## Panel and settings
 
-## 대화 온도 변환
+The panel presents a flame, brief guidance, the last 30 minutes, recent reasons, monitoring controls, and settings. Detailed scores and rule weights use the original 0–100 scale; the earlier temperature display is superseded.
 
-내부 점수 0은 `36.5°C`, 점수 100은 `100°C`로 선형 변환한다. 화씨에서는 같은 상태를 `97.7°F`–`212°F`로 표시한다. 100 미만의 점수가 반올림으로 끓는점처럼 보이지 않도록 표시 상한을 각각 `99.9°C`, `211.9°F`로 제한한다. 단위 설정은 이 Mac의 사용자 설정에 저장하며 메뉴 막대, 패널, 그래프, 상승 이유, 기준표, 알림에 일관되게 적용한다. 내부 점수와 알림 게이트는 바꾸지 않는다. 온도는 대화의 언어 신호를 쉽게 알아차리기 위한 비유이며 실제 체온이 아니다.
+Settings cover initial review, editable personal signals, behavior, and optional devices. Korean and English are selected automatically from the system, with an explicit override. New calibration summaries and reasons use the selected language; source phrases retain their original language. Previously saved personal writing is not silently rewritten.
 
-## 시각 원칙
+Initial review reads accessible current and archived local Codex and Claude Code sessions, then sends representative context and corpus statistics to the selected signed-in CLI. Review suggestions before applying. Zero personal rules is valid. The 90 Korean/English built-in profanity expressions remain active independently of display language.
 
-기본 시스템 색과 재질을 사용해 밝은 모드와 어두운 모드에 대응한다. 모서리는 10–12pt로 부드럽게 처리하고 숫자는 rounded 서체로 약간 친근하게 만든다. 캐릭터, 게임화, 호흡 애니메이션은 넣지 않는다. 빨강은 높은 상태에만 제한하며 색과 함께 숫자·단계명·안내 문구를 항상 제공한다.
+The alert fires once at 100 and rearms at 50 or below. Copy: “잠깐 쉬어갈까요?” / “Time for a breather?” Decay half-life is configurable from 2 to 15 minutes. Optional folder sync exchanges scored events and personal criteria, never original conversation messages.
 
-## 주요 상태와 오류
+## References
 
-- 초기 상태: 개인 진단 CTA와 `기본 기준으로 시작` 선택지를 함께 표시한다.
-- 진단 중: 무한 진행 표시, 현재 작업 설명, 취소 버튼을 제공한다.
-- 개인 신호 없음: 추가 신호가 없다는 결과와 기본 욕설 기준이 계속 적용됨을 함께 표시한다.
-- 진단 실패: 설정 안에서 오류를 보여 주고 도구 선택 변경이나 재시도를 허용한다.
-- 감지 중지: 메뉴 패널 하단에 `일시 정지됨`을 문자와 아이콘으로 표시한다.
-- 알림 거부: 앱 기능은 계속 동작하며 설정에서 권한 확인 동작을 제공한다. 끓는점 알림은 현재 선택한 온도 단위로 표시한다.
-- 동기화 없음: 한 대 사용이 정상 상태임을 설명한다.
-- 동기화 지연: 마지막 기기 반영 시각과 폴더 제공자에 따른 지연 가능성을 보여 준다.
-
-## 접근성 및 입력
-
-모든 아이콘 버튼에는 VoiceOver 이름이 있고, 그래프에는 현재 값과 범위를 설명하는 접근성 값을 제공한다. 상태는 색만으로 구분하지 않는다. 시스템 표준 컨트롤과 Tab 이동을 사용하므로 키보드 포커스가 갇히지 않는다. 편집 필드의 이름과 슬라이더 점수를 명시한다.
-
-## 의도한 절충
-
-작은 메뉴 패널은 즉시 알아차리는 데 집중하므로 긴 기록, 원문, 세부 통계는 넣지 않는다. 최근 이유도 세 개까지만 보인다. 기기 동기화는 사용자가 고른 폴더에 의존하므로 실시간 일치를 보장하지 않는다. 문맥 필터는 인용·코드·욕설 자체에 대한 설명을 제외하지만 자연어의 모든 맥락을 완벽히 판별할 수 없으므로, 사용자가 개인 기준을 직접 교정할 수 있게 한다.
+The original Bézier silhouettes follow the selected minimal design direction documented in [selected-direction.md](fire-references/selected-direction.md). Source reference images are attributed research links, not bundled app artwork. [Interactive prototype](flame-concept/index.html).

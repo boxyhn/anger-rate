@@ -3,6 +3,25 @@ import XCTest
 @testable import AngerCore
 
 final class CalibrationTests: XCTestCase {
+    func testEnglishCalibrationRequestsEnglishSummaryAndReasons() async throws {
+        let fixture = try CalibrationFixture(executableName: "claude")
+        defer { fixture.remove() }
+        let recorder = CommandRecorder { _, arguments, input, _, _, _ in
+            if arguments == ["--help"] { return .success(Self.claudeHelp) }
+            let prompt = String(decoding: input, as: UTF8.self)
+            XCTAssertTrue(prompt.contains("Use English for summary and reasons."))
+            return .success(#"{"structured_output":{"summary":"No additional personal signals found.","rules":[]}}"#)
+        }
+
+        let profile = try await makeService(fixture: fixture, recorder: recorder).analyze(
+            messages: [message("Looks good", offset: 0)],
+            provider: "claude",
+            language: .english
+        )
+
+        XCTAssertEqual(profile.summary, "No additional personal signals found.")
+    }
+
     func testSparseCorpusCanYieldNoPersonalRulesAndIncludesAuditScope() async throws {
         let fixture = try CalibrationFixture(executableName: "claude")
         defer { fixture.remove() }

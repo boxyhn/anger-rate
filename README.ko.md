@@ -1,20 +1,22 @@
 <p align="center"><img src="assets/app-icon.png" width="128" alt="AngerRate 불꽃 아이콘"></p>
 <h1 align="center">AngerRate</h1>
-<p align="center"><strong>대화가 뜨거워질 때, 잠깐 쉬어갈 신호.</strong><br>Codex · Claude Code 사용자를 위한 macOS 메뉴 막대 앱</p>
+<p align="center"><strong>열이 오르는 순간을 알아차리고, 잠깐 쉬어가세요.</strong><br>Codex · Claude Code 사용자를 위한 macOS 메뉴 막대 앱</p>
 <p align="center"><a href="README.md">English</a> · 한국어 · <a href="#빠른-시작">설치</a> · <a href="CONTRIBUTING.md">기여하기</a></p>
-<p align="center"><img src="docs/panel-preview.png" width="360" alt="AngerRate 온도와 최근 변화 패널"></p>
-<p align="center"><sub>실제 앱을 합성 데이터로 렌더링한 미리보기입니다. UI는 현재 한국어입니다.</sub></p>
+<p align="center"><img src="docs/panel-preview.png" width="360" alt="단색 불꽃, 현재 점수, 최근 변화와 감지 이유를 보여 주는 AngerRate 한국어 메뉴 패널"></p>
+<p align="center"><sub>합성 데이터로 렌더링한 실제 앱 화면입니다.</sub></p>
 
 > 초기 프리뷰 · macOS 13+ · SwiftUI · MIT · 현재 소스 빌드로 설치
 
 
-AngerRate는 Codex와 Claude Code에서 내가 보낸 메시지의 언어 신호를 읽어 현재 상태를 대화 온도로 보여 주는 macOS 메뉴 막대 앱입니다. 평상시는 36.5°C, 끓는점인 100°C에 도달하면 한 번 알려드립니다. 화씨 표시도 지원합니다(97.7–212°F). 내부 점수가 50 이하로 식은 뒤 다시 상한에 도달하면 알림이 재활성화됩니다. 이 수치는 감정이나 건강 상태에 대한 진단이 아닙니다.
+AngerRate는 Codex와 Claude Code에서 내가 보낸 메시지의 언어 신호를 읽어 현재 상태를 움직이는 불꽃으로 보여 주는 macOS 메뉴 막대 앱입니다. 내부 분노 점수는 0–100이며, 100에 도달하면 한 번 알려드립니다. 점수가 50 이하로 내려간 뒤 다시 100에 도달하면 알림이 재활성화됩니다. 이 수치는 감정이나 건강 상태에 대한 진단이 아닙니다. 앱 화면과 알림은 한국어와 영어를 지원합니다.
 
 ## 빠른 시작
 
 요구 사항은 macOS 13 이상, Swift 5.9 이상입니다. Codex 또는 Claude Code 세션 기록이 있어야 감지와 첫 진단을 사용할 수 있습니다.
 
 ```sh
+git clone https://github.com/boxyhn/anger-rate.git
+cd anger-rate
 ./scripts/package.sh
 ./scripts/install.sh
 ```
@@ -25,7 +27,7 @@ AngerRate는 Codex와 Claude Code에서 내가 보낸 메시지의 언어 신호
 
 ## 사용 방법
 
-앱을 열면 메뉴 막대에 `36.5°C` 같은 현재 온도가 나타납니다. 메뉴를 열어 최근 30분 변화, 상승 이유, 감지 상태를 볼 수 있습니다. 아무 신호가 없으면 기준 온도를 넘는 부분이 기본 5분마다 절반으로 줄어들며, 설정에서 반감기를 2–15분 사이로 바꿀 수 있습니다. 설정 → 동작에서 섭씨·화씨를 전환할 수 있습니다.
+앱을 열면 메뉴 막대에 현재 점수에 맞는 단색 불꽃이 나타납니다. **촛불(0–32) → 피어나는 불(33–65) → 타오르는 불(66–100)**의 세 형태로 바뀌며, 각 구간 안에서도 점수가 높을수록 움직임이 연속적으로 빨라집니다. 메뉴를 열어 현재 점수, 최근 30분 변화, 상승 이유, 감지 상태를 볼 수 있습니다. 아무 신호가 없으면 점수가 기본 5분마다 절반으로 줄어들며, 설정에서 반감기를 2–15분 사이로 바꿀 수 있습니다.
 
 **한·영 기본 욕설 90개는 항상 적용**됩니다. 개인화는 이 사전을 대체하지 않고, 본인 특유의 욕설 외 분노 조짐을 추가합니다. 표시하는 값은 언어 신호로 추정한 **분노 정도**입니다.
 

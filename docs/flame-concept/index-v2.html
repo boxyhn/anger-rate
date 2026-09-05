@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AngerRate · 불꽃 시안</title>
+<style>
+:root{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif;color:#312b27;background:#f5f1ea;font-synthesis:none}*{box-sizing:border-box}body{margin:0}button{font:inherit;cursor:pointer}button:focus-visible{outline:3px solid #d46537;outline-offset:4px}header{max-width:1120px;margin:auto;padding:36px 36px 0;display:flex;justify-content:space-between;align-items:center}.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:16px}.brand img{width:36px;height:36px}.badge{font-size:12px;color:#82796f;border:1px solid #dcd5cb;border-radius:20px;padding:7px 12px}main{max-width:1120px;margin:auto;padding:52px 36px;display:grid;grid-template-columns:1fr 430px;gap:70px;align-items:start}.eyebrow{font-size:12px;letter-spacing:.13em;color:#9a7157;font-weight:650}h1{font-size:42px;line-height:1.25;letter-spacing:-1.8px;margin:17px 0 18px}.intro{font-size:16px;line-height:1.8;color:#7d746c;max-width:390px}.choices{margin:32px 0 22px;display:grid;grid-template-columns:1fr 1fr;gap:10px}.choice{background:rgba(255,255,255,.45);border:1px solid #e0d9ce;padding:15px 17px;border-radius:16px;text-align:left;color:#746a62;transition:background .2s,border-color .2s;display:flex;align-items:center;gap:12px}.choice[aria-pressed=true]{border-color:#d7916e;background:#fffaf3;box-shadow:0 3px 14px #7f4c2010;color:#392d25}.choice strong{display:block;font-size:14px}.choice small{display:block;margin-top:5px;font-size:11px;color:#948579}.dot{width:9px;height:9px;border-radius:100%;background:var(--dot);flex-shrink:0}.description{min-height:72px;font-size:14px;color:#80746a;line-height:1.7;padding:0 3px}.controls{display:flex;gap:9px;margin-top:20px}.controls button{border:1px solid #d9d1c6;border-radius:10px;background:transparent;padding:10px 13px;font-size:12px;color:#6e6156}.note{margin-top:25px;line-height:1.7;font-size:11px;color:#a19489}.device{background:#e6e1d8;border:1px solid #d8d0c6;min-height:618px;border-radius:21px;overflow:hidden;box-shadow:0 24px 70px #57402b1a;position:relative}.menubar{height:32px;background:rgba(249,247,243,.85);display:flex;align-items:center;justify-content:space-between;padding:0 17px;font-size:11px;color:#4e483f}.menu-right{display:flex;align-items:center;gap:14px}.menu-flame{height:27px;width:29px;display:grid;place-items:center;border-radius:5px;background:#d4cfc64f;color:#484139}.menu-flame svg{width:16px;height:19px;transform-origin:50% 85%;animation:sway var(--speed) ease-in-out infinite;transition:color 1s}.scene{--size:.7;--speed:3.8s;--sway:1.5deg;--rise:2px;--hue:3deg;--sat:.85;--aura:.1;--accent:#eeba7e}.scene[data-state="1"]{--size:.82;--speed:2.7s;--sway:2deg;--rise:3px;--hue:0deg;--sat:1;--aura:.17;--accent:#efaa65}.scene[data-state="2"]{--size:.94;--speed:1.7s;--sway:3deg;--rise:4px;--hue:-10deg;--sat:1.15;--aura:.24;--accent:#ee885c}.scene[data-state="3"]{--size:1.04;--speed:1.1s;--sway:3.5deg;--rise:5px;--hue:-20deg;--sat:1.3;--aura:.31;--accent:#f2745d}.scene[data-state="2"] .menu-flame{color:#ae5d38}.scene[data-state="3"] .menu-flame{color:#ad473d}.popover{margin:13px 20px 22px;background:#292825;color:#f8f4ed;border-radius:18px;border:1px solid #ffffff14;padding:19px 24px 17px;box-shadow:0 13px 28px #3a2e2930;position:relative}.popover:before{content:"";position:absolute;top:-7px;right:82px;width:12px;height:12px;background:#292825;transform:rotate(45deg);border-left:1px solid #ffffff14;border-top:1px solid #ffffff14}.panel-top{display:flex;align-items:center;justify-content:space-between;font-size:11px;color:#a7a298}.live{display:flex;align-items:center;gap:5px}.live:before{content:"";width:5px;height:5px;background:#9ab095;border-radius:100%}.character-stage{height:234px;position:relative;display:grid;place-items:center}.aura{position:absolute;inset:40px 30px -5px;background:radial-gradient(ellipse,rgba(241,118,55,var(--aura)),transparent 70%);transition:background 1.4s}.scale{height:225px;width:225px;transform:scale(var(--size));transform-origin:50% 88%;transition:transform 1.1s cubic-bezier(.2,.65,.3,1);position:relative}.flame{height:100%;width:100%;object-fit:contain;transform-origin:50% 85%;animation:sway var(--speed) ease-in-out infinite;filter:hue-rotate(var(--hue)) saturate(var(--sat));transition:filter 1s}.pulse .scale{animation:signal .8s ease-out}.status{text-align:center;margin:-3px 0 0;font-size:21px;font-weight:650;letter-spacing:-.6px}.substatus{text-align:center;color:#a7a298;font-size:12px;line-height:1.6;margin:10px 0 23px;min-height:20px}.reasons{padding:15px 0;border-top:1px solid #ffffff10;border-bottom:1px solid #ffffff10}.reasons h2{font-size:10px;font-weight:500;color:#99948c;margin:0 0 12px}.reason{font-size:12px;color:#d4ccc1;display:flex;justify-content:space-between;margin:8px 0}.reason span:last-child{color:#827c72;font-size:10px}.rest{display:block;width:100%;background:#eee6da;color:#42362c;border:0;border-radius:10px;padding:12px;font-weight:600;font-size:12px;margin-top:16px}.footer{display:flex;justify-content:space-between;font-size:10px;color:#8e887f;padding-top:15px}.toast{position:absolute;left:35px;right:35px;top:42px;z-index:5;background:#fff9ef;color:#4d3b30;border-radius:13px;padding:13px 16px;font-size:12px;box-shadow:0 8px 28px #0002;opacity:0;transform:translateY(-7px);pointer-events:none;transition:.3s}.toast.visible{opacity:1;transform:translateY(0)}.caption{text-align:center;font-size:11px;color:#998a7c;margin:17px 0 0}.paused *{animation-play-state:paused!important}@keyframes sway{0%,100%{transform:rotate(calc(var(--sway) * -1)) scaleX(1.012) scaleY(.985)}50%{transform:rotate(var(--sway)) translateY(calc(var(--rise) * -1)) scaleX(.985) scaleY(1.018)}}@keyframes signal{0%,100%{transform:scale(var(--size))}35%{transform:scale(calc(var(--size) * 1.09)) translateY(-3px)}}@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}@media(max-width:850px){main{grid-template-columns:1fr;gap:35px;max-width:540px;padding-top:30px}h1{font-size:35px}.intro{max-width:none}header{padding:22px 24px 0}.device{min-height:600px}}@media(max-width:400px){main{padding:28px 16px}.popover{margin-left:12px;margin-right:12px;padding-left:18px;padding-right:18px}.controls{flex-wrap:wrap}}
+
+/* V2: distinct expressions and flame silhouettes; original app icon unchanged. */
+.scene{--size:1;--speed:3.6s;--sway:1deg;--rise:2px;--spread:1.015;--stretch:1.025}
+.scene[data-state="1"]{--size:1;--speed:2.2s;--sway:1.6deg;--rise:3px;--spread:1.025;--stretch:1.035}
+.scene[data-state="2"]{--size:1;--speed:1.25s;--sway:2deg;--rise:4px;--spread:1.035;--stretch:1.045}
+.scene[data-state="3"]{--size:1;--speed:.85s;--sway:2.5deg;--rise:5px;--spread:1.04;--stretch:1.055}
+.scale{height:244px;width:244px;transform:none;mix-blend-mode:lighten}
+.flame{background:url('flame-states-v2.png') 0% 0% / 200% 200% no-repeat;filter:none;animation:fire var(--speed) ease-in-out infinite;transform-origin:50% 89%}
+.scene[data-state="1"] .flame{background-position:100% 0%}
+.scene[data-state="2"] .flame{background-position:0% 100%}
+.scene[data-state="3"] .flame{background-position:100% 100%}
+.character-stage{height:250px}.aura{display:none}
+.thumb{width:45px;height:45px;flex-shrink:0;border-radius:10px;background:url('flame-states-v2.png') 0% 0% / 200% 200%}
+[data-choice="1"] .thumb{background-position:100% 0%}[data-choice="2"] .thumb{background-position:0% 100%}[data-choice="3"] .thumb{background-position:100% 100%}
+.choice{padding:12px;gap:10px}.choice small{font-size:10px}.ember{position:absolute;left:48%;top:53%;width:3px;height:5px;border-radius:50%;background:#ffd58a;opacity:0;pointer-events:none}
+.scene[data-state="2"] .ember,.scene[data-state="3"] .ember{animation:ember 2.8s ease-out infinite}.ember.e2{left:62%;animation-delay:1.4s!important}
+@keyframes fire{0%,100%{transform:skewX(calc(var(--sway) * -.5)) scaleX(var(--spread)) scaleY(.985)}35%{transform:skewX(var(--sway)) translateY(calc(var(--rise) * -.6)) scaleX(.98) scaleY(var(--stretch))}70%{transform:skewX(calc(var(--sway) * -1)) translateY(calc(var(--rise) * -1)) scaleX(1.01) scaleY(1.01)}}
+@keyframes ember{0%,15%{opacity:0;transform:translate(0,0)}30%{opacity:.55}100%{opacity:0;transform:translate(12px,-105px) scale(.3)}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header><div class="brand"><img src="../../assets/app-icon.png" alt="기존 앱 아이콘">AngerRate</div><span class="badge">불꽃 인터랙션 · v2</span></header>
+<main>
+<section><div class="eyebrow">A LITTLE FLAME, A GENTLE NUDGE</div><h1>숫자 대신,<br>지금 내 불꽃.</h1><p class="intro">작은 촛불에서, 크게 타오르는 불까지.<br>표정과 불꽃 끝에도 지금 상태가 드러납니다.<br>불의 세기로 쉬어갈 순간을 알아차립니다.</p>
+<div class="choices" role="group" aria-label="불꽃 상태 선택">
+<button class="choice" data-choice="0" aria-pressed="true"><i class="thumb" aria-hidden="true"></i><span><strong>촛불</strong><small>편안한 얼굴 · 노란 끝</small></span></button>
+<button class="choice" data-choice="1" aria-pressed="false"><i class="thumb" aria-hidden="true"></i><span><strong>피어나는 불</strong><small>굳어진 입 · 주황빛</small></span></button>
+<button class="choice" data-choice="2" aria-pressed="false"><i class="thumb" aria-hidden="true"></i><span><strong>타오르는 불</strong><small>찌푸린 눈썹 · 여러 갈래</small></span></button>
+<button class="choice" data-choice="3" aria-pressed="false"><i class="thumb" aria-hidden="true"></i><span><strong>캠프파이어</strong><small>화난 표정 · 붉은 끝</small></span></button>
+</div>
+<div class="description" id="description" aria-live="polite">가느다란 노란 불꽃 하나, 편안한 눈과 작은 미소.<br>촛불 끝이 조용히 흔들리는 정도로 움직입니다.</div>
+<div class="controls"><button id="signal">새 신호 반응 보기</button><button id="motion" aria-pressed="false">움직임 멈추기</button></div>
+<p class="note">상태 버튼으로 모습과 속도를 비교해 보세요.<br>현재 화면은 합성 데이터로 만든 디자인 시안입니다.<br>시스템의 ‘동작 줄이기’ 설정을 따릅니다.</p></section>
+<section>
+<div class="device scene" data-state="0" id="scene">
+<div class="menubar"><span>Codex &nbsp; 파일 &nbsp; 편집</span><div class="menu-right"><span class="menu-flame" aria-label="메뉴 막대 불꽃"><svg viewBox="0 0 24 28" fill="currentColor" aria-hidden="true"><path d="M13 1c1 6-5 7-4 13-3-1-3-4-3-5-4 4-5 7-4 11 1 5 5 7 10 7 6 0 10-4 10-9 0-6-5-13-9-17Zm-1 23c-3 0-5-2-5-5 0-2 1-3 2-4 0 2 1 3 2 3 0-3 2-5 3-6 0 4 3 5 3 8 0 2-2 4-5 4Z"/></svg></span><span>◉</span><span>오후 9:41</span></div></div>
+<div class="toast" id="toast" role="status">조금 뜨거워졌어요. 잠깐 쉬어갈까요?</div>
+<div class="popover"><div class="panel-top"><span>AngerRate</span><span class="live">감지 중</span></div>
+<div class="character-stage"><div class="aura"></div><i class="ember"></i><i class="ember e2"></i><div class="scale"><div class="flame" role="img" aria-label="표정과 모양이 변하는 불꽃"></div></div></div>
+<h2 class="status" id="status">잔잔하게 일렁이고 있어요</h2><p class="substatus" id="substatus">지금은 거친 표현이 거의 없어요.</p>
+<div class="reasons"><h2>최근 감지한 신호</h2><div class="reason"><span id="reason1">아직 감지한 신호가 없어요</span><span id="time1">—</span></div><div class="reason"><span id="reason2">내 속도로 이어가세요</span><span id="time2"></span></div></div>
+<button class="rest" id="rest">잠깐 쉬기</button><div class="footer"><span>Codex · Claude Code</span><span>설정 ···</span></div></div>
+</div><p class="caption">메뉴 막대는 작은 실루엣 · 패널은 익숙한 얼굴</p>
+</section>
+</main>
+<script>
+const $=id=>document.getElementById(id);const scene=$('scene');let state=0,noticeTimer,restTimer,restUntil=0;
+const states=[
+['잔잔하게 일렁이고 있어요','지금은 거친 표현이 거의 없어요.','가느다란 노란 불꽃 하나, 편안한 눈과 작은 미소.<br>촛불 끝이 조용히 흔들리는 정도로 움직입니다.','아직 감지한 신호가 없어요','내 속도로 이어가세요'],
+['조금 뜨거워졌어요','비슷한 불만이 이어지고 있어요.','불꽃이 두 갈래로 피어나고, 끝이 주황빛으로 짙어집니다.<br>눈썹이 올라가고 입이 일자로 굳습니다.','반복된 불만 표현','짧은 시간에 이어진 재촉'],
+['불꽃이 커지고 있어요','말이 조금씩 거칠어지고 있어요.','여러 갈래 불꽃이 위로 솟고, 눈썹과 입이 찌푸려집니다.<br>불꽃 끝은 더 빠르게 흐르고 작은 불티가 올라갑니다.','직접적인 욕설','반복된 불만 표현'],
+['잠깐 쉬어갈 때예요','알아차린 것만으로도 좋은 시작이에요.','넓게 타오르는 불, 붉은 끝과 뚜렷한 화난 표정.<br>가장 강한 상태에 처음 닿으면 한 번 알려줍니다.','짧은 시간에 반복된 욕설','강한 불만 표현']];
+function pulse(){scene.classList.remove('pulse');void scene.offsetWidth;scene.classList.add('pulse');setTimeout(()=>scene.classList.remove('pulse'),850)}
+function notify(){clearTimeout(noticeTimer);$('toast').classList.add('visible');noticeTimer=setTimeout(()=>$('toast').classList.remove('visible'),3600)}
+const silhouettes=[
+'M12 1C14 7 19 12 18 19C18 24 15 27 12 27C8 27 5 24 5 19C5 12 11 9 12 1Z',
+'M12 1C18 6 17 12 18 14C19 12 20 9 20 8C25 20 21 27 12 27C3 27 0 19 5 11C5 15 8 16 8 14C6 9 11 6 12 1Z',
+'M12 1C18 7 17 11 17 14C20 11 21 8 21 7C25 14 21 17 23 20C24 25 18 27 12 27C4 27 0 23 1 19C2 15 5 13 4 8C9 12 5 18 9 17C13 14 7 8 12 1Z',
+'M12 0C19 5 14 11 17 14C20 12 18 9 22 5C21 12 26 13 22 18C26 17 26 15 26 14C29 23 21 27 13 27C4 27-2 24 0 16C1 19 4 20 4 18C1 12 7 10 6 5C11 9 5 14 9 16C14 12 7 6 12 0Z'];
+function select(n){document.querySelector('.menu-flame path').setAttribute('d',silhouettes[n]);const previous=state;state=n;scene.dataset.state=n;document.querySelectorAll('[data-choice]').forEach(b=>b.setAttribute('aria-pressed',String(Number(b.dataset.choice)===n)));const s=states[n];$('status').textContent=s[0];$('substatus').textContent=s[1];$('description').innerHTML=s[2];$('reason1').textContent=s[3];$('reason2').textContent=s[4];$('time1').textContent=n?'방금':'—';$('time2').textContent=n?'2분 전':'';if(n===3&&previous!==3){pulse();notify()}}
+document.querySelectorAll('[data-choice]').forEach(b=>b.addEventListener('click',()=>select(Number(b.dataset.choice))));$('signal').onclick=pulse;$('motion').onclick=()=>{const paused=scene.classList.toggle('paused');$('motion').textContent=paused?'움직임 재생':'움직임 멈추기';$('motion').setAttribute('aria-pressed',String(paused))};
+$('rest').onclick=()=>{if(restUntil){clearInterval(restTimer);restUntil=0;$('rest').textContent='잠깐 쉬기';return}restUntil=Date.now()+60000;function tick(){const remaining=Math.max(0,Math.ceil((restUntil-Date.now())/1000));$('rest').textContent=`쉬는 중 · ${remaining}초 남음 · 끝내기`;if(!remaining){clearInterval(restTimer);restUntil=0;$('rest').textContent='잠깐 쉬기'}}tick();restTimer=setInterval(tick,250)};
+select(0);
+</script>
+</body></html>

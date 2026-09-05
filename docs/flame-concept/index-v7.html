@@ -1,0 +1,57 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AngerRate · minimal flame</title><style>
+*{box-sizing:border-box}body{margin:0;background:#fafafa;color:#262626;font:14px -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif}main{max-width:780px;margin:72px auto;padding:0 28px}header{display:flex;align-items:center;justify-content:space-between;font-size:12px;color:#888}header strong{color:#333;font-weight:600}h1{font-size:27px;letter-spacing:-1px;font-weight:550;margin:54px 0 12px}.intro{line-height:1.8;color:#888;font-size:13px;margin:0 0 36px}.desktop{height:210px;border:1px solid #e1e1e1;border-radius:12px;overflow:hidden;background:#f2f2f2;position:relative}.bar{height:29px;display:flex;align-items:center;justify-content:space-between;background:#fafafa;padding:0 17px;color:#303030;font-size:11px;border-bottom:1px solid #e5e5e5}.right{display:flex;align-items:center;gap:17px}.fire{width:16px;height:19px;fill:currentColor;display:block;overflow:visible}.small-symbol{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:1.4}.desktop .hint{position:absolute;inset:29px 0 0;display:grid;place-items:center;color:#b6b6b6;font-size:12px}.dark{margin-top:14px;background:#282828;border-color:#373737;height:95px}.dark .bar{background:#222;color:#eee;border-color:#333}.dark .hint{color:#737373}.compare{display:grid;grid-template-columns:repeat(4,1fr);margin:44px 0 0;border-bottom:1px solid #e4e4e4;padding-bottom:25px;gap:8px}button{font:inherit;cursor:pointer}button:focus-visible,a:focus-visible{outline:2px solid #777;outline-offset:5px}.state{border:1px solid transparent;border-radius:9px;padding:17px 0 12px;background:none;color:#333;display:flex;align-items:center;flex-direction:column;gap:15px}.state:hover{background:#f0f0f0}.state[aria-pressed=true]{background:#ededed;border-color:#e1e1e1}.state .fire{width:32px;height:38px}.state span{font-size:12px}.state small{font-size:10px;color:#999;margin-top:-7px}.bottom{display:flex;align-items:center;justify-content:space-between;margin-top:22px;gap:20px;color:#999;font-size:11px;line-height:1.7}.pause{font-size:11px;color:#777;background:none;border:1px solid #ddd;border-radius:7px;padding:7px 12px;white-space:nowrap}footer{font-size:11px;color:#aaa;line-height:1.8;margin:40px 0}a{color:#777;text-underline-offset:3px}@media(max-width:500px){main{margin:30px auto;padding:0 20px}h1{margin-top:35px}.compare{gap:2px}.state small{font-size:9px}.left-nav{max-width:125px;overflow:hidden;white-space:nowrap}.right{gap:12px}.bottom{align-items:flex-start}}
+</style></head><body><main><header><strong>AngerRate</strong><span>메뉴 막대 시안 · 07</span></header><h1>촛불 한 줄기에서.</h1><p class="intro">처음에는 가늘고 긴 촛불 하나가 조용히 흔들립니다.<br>세기가 올라가면 옆 불꽃이 생기고, 번갈아 피어오릅니다.</p>
+<div class="desktop"><div class="bar"><span class="left-nav">Finder &nbsp; 파일 &nbsp; 편집 &nbsp; 보기</span><div class="right"><svg class="fire live" viewBox="0 0 24 28" role="img" aria-label="현재 불꽃"><path/></svg><svg class="small-symbol" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.5"/><path d="m10.5 10.5 4 4"/></svg><span>9:41</span></div></div><div class="hint">실제 메뉴 막대 크기</div></div>
+<div class="desktop dark"><div class="bar"><span>Finder</span><div class="right"><svg class="fire live" viewBox="0 0 24 28" role="img" aria-label="어두운 배경 불꽃"><path/></svg><svg class="small-symbol" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.5"/><path d="m10.5 10.5 4 4"/></svg><span>9:41</span></div></div><div class="hint">어두운 메뉴 막대</div></div>
+<div class="compare" role="group" aria-label="불꽃 세기 선택">
+<button class="state" data-level="0" aria-pressed="true"><svg class="fire" viewBox="0 0 24 28" aria-hidden="true"><path/></svg><span>촛불</span><small>가늘고 긴 한 줄기</small></button>
+<button class="state" data-level="1" aria-pressed="false"><svg class="fire" viewBox="0 0 24 28" aria-hidden="true"><path/></svg><span>조금 뜨거움</span><small>한 줄기가 더 활발하게</small></button>
+<button class="state" data-level="2" aria-pressed="false"><svg class="fire" viewBox="0 0 24 28" aria-hidden="true"><path/></svg><span>뜨거움</span><small>갈라지고 합쳐짐</small></button>
+<button class="state" data-level="3" aria-pressed="false"><svg class="fire" viewBox="0 0 24 28" aria-hidden="true"><path/></svg><span>쉬어갈 때</span><small>번갈아 솟아오름</small></button>
+</div><div class="bottom"><span>아래는 2배 확대입니다. 선택한 불꽃이 위 메뉴 막대에 표시됩니다.</span><button class="pause" id="pause" aria-pressed="false">움직임 멈추기</button></div>
+<footer><a href="https://kyome.io/runcat/index.html?lang=en" target="_blank" rel="noopener">RunCat 공식 레퍼런스</a> · 단색 실루엣과 반복 동작의 속도를 참고했습니다.<br>앱 아이콘은 그대로 유지합니다. 이 화면은 메뉴 막대 디자인 시안입니다.</footer>
+</main><script>
+const reduced=matchMedia('(prefers-reduced-motion: reduce)');let selected=0,paused=false;
+// Fixed footprint, rising waves and alternating tongues. No whole-icon scaling.
+function shape(level,frame){
+ const t=frame/24*Math.PI*2;
+ if(level===0){
+  // Candle: one slender asymmetric teardrop. No side tips or cutout.
+  const drift=Math.sin(t)*1.1, lag=Math.sin(t-1)*.6;
+  const tx=12+drift,ty=3+Math.sin(t+.6)*.45;
+  return `M12 26 C9.5 26 8.5 23.5 8.8 20 C9.1 15.5 ${11+lag} 10 ${tx} ${ty} C${tx+.3} 9 ${15.2+lag} 15.5 15.2 20 C15.3 23.8 14.4 26 12 26 Z`;
+ }
+ if(level===1){
+  // Stronger candle: still a single flame, with a slightly fuller moving shoulder.
+  const drift=Math.sin(t)*1.6,lag=Math.sin(t-1.2);
+  return `M12 26 C8.7 26 7.3 23 7.8 19 C8.3 14 ${11+lag} 9 ${12+drift} 2.5 C${12+drift} 8 ${16.4+lag*.6} 13.5 16.5 19 C17 23 15.8 26 12 26 Z`;
+ }
+
+ const wave=(phase)=>Math.sin(t+phase);
+ const power=[.35,.55,.8,1][level];
+ const centerX=12+wave(0)*1.8;
+ const centerY=4+wave(1.3)*1.4;
+ // Side tongues rise out of the same body in alternating phases.
+ const leftY=12-(.5+.5*wave(-1.7))*7*power;
+ const rightY=13-(.5+.5*wave(1.1))*8*power;
+ const leftX=6+wave(-1.2)*1.4;
+ const rightX=18+wave(1.8)*1.2;
+ const leftValley=15+wave(-.6)*2*power;
+ const rightValley=15+wave(2.5)*2*power;
+ return `M12 26 C7 26 4 24 4 20
+ C4 17 ${leftX+.4} ${leftY+4} ${leftX} ${leftY}
+ C${leftX+3} ${leftY+2} 7 ${leftValley+2} 10 ${leftValley}
+ C${12+wave(-.8)} 12 ${centerX-2} ${centerY+5} ${centerX} ${centerY}
+ C${centerX+.4} ${centerY+4} 17 ${rightValley-3} 15 ${rightValley}
+ C18 ${rightValley+1} ${rightX+1} ${rightY+3} ${rightX} ${rightY}
+ C${rightX+3} ${rightY+5} 20 17 20 21
+ C20 25 16 26 12 26 Z`;
+}
+const frames=Array.from({length:4},(_,l)=>Array.from({length:24},(_,f)=>shape(l,f)));const speeds=[120,90,65,45];
+let indexes=[0,0,0,0],last=[0,0,0,0];const buttons=[...document.querySelectorAll('.state')];
+function render(){buttons.forEach((b,l)=>b.querySelector('path').setAttribute('d',frames[l][indexes[l]]));document.querySelectorAll('.live path').forEach(p=>p.setAttribute('d',frames[selected][indexes[selected]]))}
+buttons.forEach((b,l)=>b.onclick=()=>{selected=l;buttons.forEach((x,i)=>x.setAttribute('aria-pressed',String(i===l)));render()});
+document.getElementById('pause').onclick=function(){paused=!paused;this.setAttribute('aria-pressed',String(paused));this.textContent=paused?'움직임 재생':'움직임 멈추기'};
+function tick(time){if(!paused&&!reduced.matches&&!document.hidden){let dirty=false;for(let l=0;l<4;l++)if(time-last[l]>=speeds[l]){indexes[l]=(indexes[l]+1)%24;last[l]=time;dirty=true}if(dirty)render()}requestAnimationFrame(tick)}
+reduced.addEventListener('change',()=>{indexes=[0,0,0,0];render()});render();requestAnimationFrame(tick);
+</script></body></html>
