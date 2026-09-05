@@ -10,7 +10,8 @@
 
 - MacMenuBar: submission form prepared, not submitted. Requires an app-domain email (no Gmail/Hotmail) and at least three screenshots showing the app in the actual menu bar. Form: https://macmenubar.com/submit-your-menu-bar-app/
 - Show HN: not submitted. Guidelines prohibit generated/AI-edited text; the maker must supply their own original submission text. https://news.ycombinator.com/newsguidelines.html
-- Reddit r/macapps: submission URL redirects to login. Not submitted. Review current community rules before posting once authenticated.
+- Reddit r/macapps: authenticated, but promotion requires 10 local subreddit karma. No post or promotional comment submitted.
+- Reddit r/SideProject: submitted https://www.reddit.com/r/SideProject/comments/1w85q8e/ . Detail page explicitly says “removed by Reddit’s filters”; it is not a successful public promotion. Sent a moderator review request through the compose form; fields cleared after submission, but no separate delivery receipt was available. Do not repost while awaiting review.
 - GeekNews: 글등록 redirects to login. Not submitted. Review current Show GN guidance before posting once authenticated.
 - Product Hunt: deferred until initial feedback, as discussed.
 
