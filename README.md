@@ -8,14 +8,16 @@
   <img alt="Built with SwiftUI" src="https://img.shields.io/badge/SwiftUI-native-F05138?style=flat-square">
   <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/license-MIT-70927C?style=flat-square"></a>
 </p>
-<p align="center">English · <a href="README.ko.md">한국어</a> · <a href="#getting-started">Get started</a> · <a href="CONTRIBUTING.md">Contribute</a></p>
+<p align="center">English · <a href="README.ko.md">한국어</a> · <a href="https://github.com/boxyhn/anger-rate/releases/tag/v0.1.0">Download v0.1.0</a> · <a href="#getting-started">Get started</a> · <a href="CONTRIBUTING.md">Contribute</a></p>
 
+<p align="center"><img src="docs/flame-demo.gif" width="680" alt="AngerRate flame moving from a calm candle to a fast roaring flame as the score rises from 15 to 100, then cooling down"></p>
+<p align="center"><sub>The flame grows and accelerates as language signals accumulate, then settles as the score cools.</sub></p>
 <p align="center"><img src="docs/panel-preview-en.png" width="360" alt="AngerRate menu panel in English with a monochrome flame, current score, recent trend, and reasons"></p>
 <p align="center"><sub>Actual app UI rendered with synthetic data.</sub></p>
 
 Coding with an AI can get frustrating. AngerRate watches language signals in your local coding sessions and shows them as a small animated flame in your menu bar. At 100, one gentle notification gives you a moment to notice and pause.
 
-**Early preview.** Build from source today; a signed, notarized public release is not available yet.
+**Preview release.** [Download v0.1.0 for Apple Silicon](https://github.com/boxyhn/anger-rate/releases/tag/v0.1.0), or build from source. The downloadable app is ad-hoc signed and not notarized.
 
 ## Small by design
 
@@ -30,7 +32,7 @@ The flame represents a language-based heuristic, not a clinical assessment. Its 
 
 ## Getting started
 
-You need **macOS 13+**, a **Swift 5.9+ toolchain** to build, and local Codex or Claude Code session logs. AI personalization additionally requires a supported, signed-in CLI; it uses that account's allowance and does not need a separate API key.
+You need **macOS 13+** and local Codex or Claude Code session logs. Download the Apple Silicon DMG from the [v0.1.0 release](https://github.com/boxyhn/anger-rate/releases/tag/v0.1.0), or build it yourself with a **Swift 5.9+ toolchain**. AI personalization additionally requires a supported, signed-in CLI; it uses that account's allowance and does not need a separate API key.
 
 Clone the public repository, then build and install it:
 
