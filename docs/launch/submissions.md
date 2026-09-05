@@ -46,3 +46,10 @@ Codex와 Claude Code를 쓰다 말이 거칠어지는 순간을 알아차리고 
 소스·데모·다운로드: https://github.com/boxyhn/anger-rate
 
 MIT 오픈소스이며 첫 공개 미리보기입니다. DMG는 Apple Silicon/macOS 13+용이고 Apple 공증 전입니다.
+
+## Additional channels
+
+- Mac Apps Daily: free editorial form prepared at https://macappsdaily.com/submit . Contact email pending; not submitted. General contact email accepted; no app-domain requirement shown. Original artwork upload is optional in the form.
+- open-source-mac-os-apps: listing PR submitted, open for maintainer review: https://github.com/serhii-londar/open-source-mac-os-apps/pull/1339 . Not yet merged/listed.
+- Uneed: free waiting-line route exists, but account registration is required. Not submitted. https://help.uneed.best/getting-started/how-to-submit-your-first-product
+- Thriftmac: excluded for now; its directory explicitly excludes betas, while AngerRate 0.1.0 is a public preview. https://www.thriftmac.com/about
