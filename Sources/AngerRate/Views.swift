@@ -126,7 +126,7 @@ struct MainPanel: View {
         VStack(alignment: .leading, spacing: 8) {
             Label("내 표현에 맞춰 볼까요?", systemImage: "sparkles")
                 .font(.headline)
-            Text("과거 Codex 또는 Claude Code 세션을 진단해 개인 기준을 제안합니다.")
+            Text("이 Mac의 현재·아카이브 세션을 한 번 점검해 개인 기준을 제안합니다.")
                 .font(.callout)
                 .foregroundStyle(.secondary)
             Button("첫 진단 시작") {
@@ -158,7 +158,7 @@ struct MainPanel: View {
             HStack {
                 Button("설정…") { model.openSettings() }
                 Spacer()
-                Button("종료") { NSApplication.shared.terminate(nil) }
+                Button("종료") { model.cancelAnalysis(); NSApplication.shared.terminate(nil) }
                     .keyboardShortcut("q")
             }
             .controlSize(.small)
@@ -184,6 +184,7 @@ struct MainPanel: View {
 
 struct PreferencesView: View {
     @ObservedObject var model: AppModel
+    @State private var showsBaselineRules = false
 
     var body: some View {
         TabView {
@@ -210,12 +211,19 @@ struct PreferencesView: View {
                 }
                 .pickerStyle(.segmented)
 
-                Text("이미 로그인된 도구를 사용합니다. 분석할 때 과거 세션의 내 메시지가 선택한 도구로 전달되며, 원문은 AngerRate에 저장하거나 기기 간 동기화하지 않습니다.")
+                Text("이미 로그인된 도구를 사용하며 기존 계정 사용량이 차감될 수 있습니다. 분석할 때 세션에서 추출한 내 메시지가 선택한 도구로 전달되고, 원문은 AngerRate에 저장하거나 기기 간 동기화하지 않습니다.")
                     .font(.callout)
                     .foregroundStyle(.secondary)
             }
 
-            Section("진단") {
+            Section("이 Mac의 전체 세션 1회 진단") {
+                Text("현재 세션과 로컬 아카이브 중 이 Mac에서 접근 가능한 기록을 모두 점검합니다. 대표 문맥과 사용 통계를 CLI로 분석해 기본 욕설 외에 나에게서 분노 신호로 보일 수 있는 표현을 제안합니다.")
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+                Text("다른 Mac이나 클라우드에만 있는 기록은 자동으로 내려받지 않습니다.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+
                 if model.isAnalyzing {
                     HStack(spacing: 10) {
                         ProgressView()
@@ -230,7 +238,7 @@ struct PreferencesView: View {
                     if model.scannedFiles > 0 {
                         LabeledContent("확인한 세션 파일", value: "\(model.scannedFiles)개")
                     }
-                    Button(model.hasCompletedSetup ? "다시 진단" : "과거 세션 진단") {
+                    Button(model.hasCompletedSetup ? "전체 세션 다시 진단" : "전체 세션 진단") {
                         model.analyzeHistory()
                     }
                     .buttonStyle(.borderedProminent)
@@ -245,10 +253,14 @@ struct PreferencesView: View {
             }
 
             if model.draftProfile != nil {
-                Section("제안된 기준") {
+                Section("제안된 개인 신호") {
                     Text(model.draftProfile?.summary ?? "")
                         .foregroundStyle(.secondary)
-                    Text("\(model.draftProfile?.rules.count ?? 0)개 표현을 찾았습니다. 적용하기 전에 개인 기준 탭에서 수정할 수 있어요.")
+                    if model.draftProfile?.rules.isEmpty == true {
+                        Text("추가할 개인 신호가 없어요. 한·영 기본 욕설 기준은 그대로 적용됩니다.")
+                    } else {
+                        Text("기본 욕설 외에 개인 신호 \(model.draftProfile?.rules.count ?? 0)개를 찾았습니다. 적용하기 전에 개인 기준 탭에서 수정할 수 있어요.")
+                    }
                     HStack {
                         Button("제안 버리기", role: .destructive) { model.dismissDraft() }
                         Spacer()
@@ -268,11 +280,35 @@ struct PreferencesView: View {
 
     private var rulesTab: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("표현별 기준")
+            Text("감지 기준")
                 .font(.title2.weight(.semibold))
-            Text("개인화는 표현을 알아보는 데 사용됩니다. 평소 사용량이 많아도 경고 기준 자체가 느슨해지지는 않습니다.")
+            Text("흔한 욕설은 모든 사용자에게 적용되고, 첫 진단과 직접 편집으로 찾은 다른 신호만 개인 기준에 추가됩니다.")
                 .font(.callout)
                 .foregroundStyle(.secondary)
+
+            DisclosureGroup(isExpanded: $showsBaselineRules) {
+                ScrollView {
+                    LazyVStack(spacing: 0) {
+                        ForEach(ProfanityLexicon.rules) { rule in
+                            BaselineRuleRow(rule: rule)
+                            if rule.id != ProfanityLexicon.rules.last?.id {
+                                Divider()
+                            }
+                        }
+                    }
+                }
+                .frame(maxHeight: 180)
+                .padding(.top, 6)
+            } label: {
+                Label("한·영 기본 욕설 \(ProfanityLexicon.rules.count)개 · 항상 적용", systemImage: "checkmark.shield.fill")
+                    .font(.headline)
+            }
+            .padding(12)
+            .background(.quaternary.opacity(0.35), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+            .accessibilityHint("기본 욕설 목록을 펼치거나 접습니다")
+
+            Text("개인 신호")
+                .font(.headline)
 
             if model.draftProfile != nil {
                 Label("적용을 기다리는 변경이 있어요.", systemImage: "circle.dashed")
@@ -283,9 +319,16 @@ struct PreferencesView: View {
             errorNotice
 
             List {
-                ForEach(editableRules) { $rule in
-                    RuleEditorRow(rule: $rule) {
-                        removeRule(id: rule.id)
+                if editableRules.wrappedValue.isEmpty {
+                    Text("추가된 개인 신호가 없어요. 기본 욕설 기준은 계속 적용됩니다.")
+                        .foregroundStyle(.secondary)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .padding(.vertical, 24)
+                } else {
+                    ForEach(editableRules) { $rule in
+                        RuleEditorRow(rule: $rule) {
+                            removeRule(id: rule.id)
+                        }
                     }
                 }
             }
@@ -488,6 +531,28 @@ private struct RuleEditorRow: View {
         if rule.weight < 15 { return "약함" }
         if rule.weight < 30 { return "중간" }
         return "강함"
+    }
+}
+
+private struct BaselineRuleRow: View {
+    let rule: LanguageRule
+
+    var body: some View {
+        HStack(alignment: .firstTextBaseline, spacing: 10) {
+            Text(rule.phrase)
+                .font(.callout.weight(.medium))
+                .frame(width: 110, alignment: .leading)
+            Text(rule.reason)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            Spacer(minLength: 8)
+            Text("+\(Int(rule.weight))")
+                .font(.caption.monospacedDigit())
+                .foregroundStyle(.secondary)
+        }
+        .padding(.vertical, 6)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(rule.phrase), \(rule.reason), \(Int(rule.weight))점")
     }
 }
 

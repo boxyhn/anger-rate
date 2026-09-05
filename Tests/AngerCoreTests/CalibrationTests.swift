@@ -3,6 +3,20 @@ import XCTest
 @testable import AngerCore
 
 final class CalibrationTests: XCTestCase {
+    func testSparseCorpusCanYieldNoPersonalRulesAndIncludesAuditScope() async throws {
+        let fixture = try CalibrationFixture(executableName: "claude")
+        defer { fixture.remove() }
+        let recorder = CommandRecorder { _, arguments, input, _, _, _ in
+            if arguments == ["--help"] { return .success(Self.claudeHelp) }
+            let prompt = String(decoding: input, as: UTF8.self)
+            XCTAssertTrue(prompt.contains("OTHER personal signs"))
+            XCTAssertTrue(prompt.contains("userMessages: 9000"))
+            return .success(#"{"structured_output":{"summary":"추가할 개인 신호가 부족합니다.","rules":[]}}"#)
+        }
+        let result = try await makeService(fixture: fixture, recorder: recorder).analyze(messages: [message("좋아요", offset: 0)], provider: "claude", corpusContext: "userMessages: 9000")
+        XCTAssertTrue(result.rules.isEmpty)
+    }
+
     func testClaudeUsesSafeOneShotFlagsRedactsInputAndValidatesStructuredOutput() async throws {
         let fixture = try CalibrationFixture(executableName: "claude")
         defer { fixture.remove() }
@@ -21,7 +35,7 @@ final class CalibrationTests: XCTestCase {
         ], provider: "claude")
 
         XCTAssertEqual(profile.summary, "개인 기준")
-        XCTAssertEqual(profile.rules.map(\.phrase), ["몇 번을 말", "씨발"])
+        XCTAssertEqual(profile.rules.map(\.phrase), ["몇 번을 말"])
         let invocation = try XCTUnwrap(recorder.invocations.last)
         XCTAssertTrue(invocation.arguments.contains("--safe-mode"))
         XCTAssertTrue(invocation.arguments.contains("--no-session-persistence"))
@@ -51,7 +65,7 @@ final class CalibrationTests: XCTestCase {
         let service = makeService(fixture: fixture, recorder: recorder)
         let profile = try await service.analyze(messages: [message("성과가 개쓰레긴데", offset: 0)], provider: "codex")
 
-        XCTAssertEqual(profile.rules.first?.weight, 30)
+        XCTAssertTrue(profile.rules.isEmpty, "Built-in profanity must not be duplicated as a personal criterion")
         let arguments = try XCTUnwrap(recorder.invocations.last?.arguments)
         XCTAssertTrue(arguments.starts(with: ["-a", "on-request", "--disable", "shell_tool"]))
         XCTAssertTrue(arguments.contains("browser_use"))
@@ -201,7 +215,6 @@ final class CalibrationTests: XCTestCase {
             message("이 결과는 진짜 개쓰레기 같아", offset: 2)
         ], provider: provider)
         XCTAssertFalse(profile.summary.isEmpty)
-        XCTAssertFalse(profile.rules.isEmpty)
         XCTAssertTrue(profile.rules.allSatisfy { (5...50).contains($0.weight) })
     }
 

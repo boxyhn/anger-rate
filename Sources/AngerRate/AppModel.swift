@@ -67,12 +67,12 @@ import AngerCore
             if let saved = try store.load() {
                 // A restored backup must not impersonate another machine.
                 localEvents = saved.events.filter { $0.deviceID == existingID }
-                profile = saved.profile
+                profile = Self.personalOnly(saved.profile)
                 halfLifeMinutes = profile.halfLifeSeconds / 60
             }
         } catch { errorMessage = "저장된 상태를 읽지 못했어요. \(error.localizedDescription)" }
         if let data = try? Data(contentsOf: directory.appendingPathComponent("draft-profile.json")) {
-            draftProfile = try? JSONDecoder().decode(PersonalProfile.self, from: data)
+            draftProfile = (try? JSONDecoder().decode(PersonalProfile.self, from: data)).map(Self.personalOnly)
         }
         events = localEvents
         score = ScoreEngine.score(events: events, at: Date(), halfLife: halfLifeMinutes * 60)
@@ -81,7 +81,7 @@ import AngerCore
             Task { @MainActor in self?.poll() }
         }
         poll()
-        if !hasCompletedSetup {
+        if !hasCompletedSetup || CommandLine.arguments.contains("--diagnose") {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) { [weak self] in
                 self?.openSettings()
                 if CommandLine.arguments.contains("--diagnose") { self?.analyzeHistory() }
@@ -139,7 +139,7 @@ import AngerCore
                 self.localEvents = own
                 self.events = merged
                 self.devices = snapshots
-                self.profile = resolvedProfile
+                self.profile = Self.personalOnly(resolvedProfile)
                 self.halfLifeMinutes = resolvedProfile.halfLifeSeconds / 60
                 self.scannedFiles = fileCount
                 self.score = ScoreEngine.score(events: merged, at: now, halfLife: self.halfLifeMinutes * 60)
@@ -150,6 +150,13 @@ import AngerCore
                 if let warning = warning ?? scanError { self.status = warning }
             }
         }
+    }
+
+    private static func personalOnly(_ original: PersonalProfile) -> PersonalProfile {
+        let builtins = Set(ProfanityLexicon.rules.map { $0.phrase.lowercased() })
+        var result = original
+        result.rules.removeAll { builtins.contains($0.phrase.lowercased()) || $0.reason.hasPrefix("기본 기준 ·") }
+        return result
     }
 
     private static func machineIdentity() -> String? {
@@ -170,35 +177,59 @@ import AngerCore
     func analyzeHistory() {
         guard !isAnalyzing else { return }
         isAnalyzing = true; errorMessage = nil; draftProfile = nil
-        analysisStatus = "최근 세션에서 표현과 비교 사례를 고르고 있어요…"
+        analysisStatus = "현재·아카이브 전체 세션 파일을 찾고 있어요…"
         let provider = selectedProvider
         analysisTask = Task { [weak self] in
             guard let self else { return }
             do {
-                let sample = await Task.detached(priority: .utility) {
-                    let reader = SessionScanner()
-                    let messages = reader.historicalMessages(limit: 400)
-                    return (messages, reader.historicalArchiveMessageCount)
-                }.value
-                let messages = sample.0
-                try Task.checkCancellation()
-                guard !messages.isEmpty else { throw AppError.message("분석할 세션을 찾지 못했어요. Codex나 Claude Code로 대화한 뒤 다시 시도해 주세요.") }
-                self.analysisStatus = "아카이브 \(sample.1)개를 포함한 \(messages.count)개 메시지를 \(provider == "codex" ? "Codex" : "Claude")로 분석 중이에요. 기존 계정 사용량이 차감될 수 있어요."
-                var draft = try await self.calibration.analyze(messages: messages, provider: provider)
-                let personalizedPhrases = Set(draft.rules.map { $0.phrase.lowercased() })
-                let baseline = PersonalProfile.starter.rules.filter { !personalizedPhrases.contains($0.phrase.lowercased()) }.map { rule -> LanguageRule in
-                    var copy = rule; copy.id = UUID().uuidString; copy.reason = "기본 기준 · " + copy.reason; return copy
+                let model = self
+                let auditTask = Task.detached(priority: .utility) {
+                    HistoryAuditor().audit(progress: { done, total in
+                        if done % 50 == 0 || done == total {
+                            Task { @MainActor in model.reportAuditProgress(done: done, total: total) }
+                        }
+                    }, isCancelled: { Task.isCancelled })
                 }
-                // Sparse histories must not erase recognition of common strong profanity.
-                draft.rules += baseline.prefix(max(0, 80 - draft.rules.count))
+                let report = await withTaskCancellationHandler {
+                    await auditTask.value
+                } onCancel: { auditTask.cancel() }
+                try Task.checkCancellation()
+                guard report.completed else { throw AppError.message("전체 점검이 완료되지 않았어요. 다시 진단해 주세요.") }
+                let messages = report.selectedMessages
+                guard !messages.isEmpty else { throw AppError.message("분석할 사용자 메시지를 찾지 못했어요. 기본 한·영 욕설 기준으로 시작할 수 있습니다.") }
+                let scope: [String: Any] = [
+                    "discoveredFiles": report.discoveredFiles, "readFiles": report.readFiles,
+                    "failedFiles": report.failedFiles, "malformedLines": report.malformedLines,
+                    "oversizedLines": report.oversizedLines, "userMessages": report.userMessages,
+                    "archiveMessages": report.archiveMessages, "uniqueMessages": report.uniqueMessages,
+                    "representativeMessages": messages.count, "completed": report.completed,
+                    "scope": "All accessible local log files; remote or cloud-only history is not fetched.",
+                    "checkedAt": ISO8601DateFormatter().string(from: Date())
+                ]
+                try FileManager.default.createDirectory(at: self.directory, withIntermediateDirectories: true)
+                let scopeData = try JSONSerialization.data(withJSONObject: scope, options: [.sortedKeys])
+                try scopeData.write(to: self.directory.appendingPathComponent("audit-summary.json"), options: .atomic)
+                var modelContext = scope
+                modelContext["frequentPhrases"] = report.phraseCounts.sorted { $0.value > $1.value }.prefix(100).map { ["phrase": $0.key, "count": $0.value] as [String: Any] }
+                let context = String(decoding: try JSONSerialization.data(withJSONObject: modelContext, options: [.sortedKeys]), as: UTF8.self)
+                self.analysisStatus = "\(report.readFiles)개 파일 · 메시지 \(report.userMessages)개(아카이브 \(report.archiveMessages)개)를 점검했어요. 대표 문맥과 통계로 개인 신호를 분석 중이에요."
+                let draft = try await self.calibration.analyze(messages: messages, provider: provider, corpusContext: context)
                 try Task.checkCancellation()
                 self.draftProfile = draft
                 try FileManager.default.createDirectory(at: self.directory, withIntermediateDirectories: true)
                 try JSONEncoder().encode(draft).write(to: self.directory.appendingPathComponent("draft-profile.json"), options: .atomic)
-                self.analysisStatus = "아카이브 메시지 \(sample.1)개 포함, 총 \(messages.count)개를 확인했어요. 개인 기준 \(draft.rules.count)개를 검토해 주세요."
+                self.analysisStatus = "전체 \(report.readFiles)/\(report.discoveredFiles)파일 · 메시지 \(report.userMessages)개(아카이브 \(report.archiveMessages)개)를 점검했어요. 개인 신호 \(draft.rules.count)개 · 읽기 실패 \(report.failedFiles)파일."
             } catch is CancellationError { self.analysisStatus = "분석을 취소했어요." }
             catch { self.errorMessage = error.localizedDescription; self.analysisStatus = "분석하지 못했어요. 로그인 상태를 확인하거나 다른 도구로 다시 시도해 주세요." }
             self.isAnalyzing = false
+        }
+    }
+    private func reportAuditProgress(done: Int, total: Int) {
+        analysisStatus = "전체 세션 점검 중 · \(done)/\(total) 파일"
+        let data: [String: Any] = ["readFiles": done, "totalFiles": total, "updatedAt": Date().timeIntervalSince1970]
+        try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        if let json = try? JSONSerialization.data(withJSONObject: data) {
+            try? json.write(to: directory.appendingPathComponent("audit-progress.json"), options: .atomic)
         }
     }
     func cancelAnalysis() { analysisTask?.cancel(); calibration.cancel() }
@@ -221,10 +252,10 @@ import AngerCore
         saveProfile()
     }
     func saveProfile() {
-        guard !profile.rules.isEmpty, profile.rules.count <= 80,
+        guard profile.rules.count <= 80,
               profile.rules.allSatisfy({ !$0.phrase.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && $0.phrase.count <= 80 && $0.weight.isFinite && (5...50).contains($0.weight) }),
               Set(profile.rules.map { $0.phrase.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() }).count == profile.rules.count else {
-            errorMessage = "표현은 중복 없이 1–80개, 점수는 5–50으로 입력해 주세요."; return
+            errorMessage = "개인 표현은 중복 없이 0–80개, 점수는 5–50으로 입력해 주세요."; return
         }
         errorMessage = nil
         profile.id = UUID().uuidString

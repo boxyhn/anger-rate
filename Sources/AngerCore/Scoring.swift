@@ -71,12 +71,14 @@ public enum ScoreEngine {
         guard !text.isEmpty, !looksLikeMetaDiscussion(text) else { return nil }
 
         let folded = text.folding(options: [.caseInsensitive, .widthInsensitive], locale: .current)
+        let builtinPhrases = Set(ProfanityLexicon.rules.map { normalizedPhrase($0.phrase) })
+        let rules = ProfanityLexicon.rules + profile.rules.filter {
+            $0.enabled && !builtinPhrases.contains(normalizedPhrase($0.phrase))
+        }
         var candidates: [MatchCandidate] = []
-        for (ruleIndex, rule) in profile.rules.enumerated()
+        for (ruleIndex, rule) in rules.enumerated()
             where rule.enabled && rule.weight > 0 && rule.weight.isFinite {
-            let phrase = rule.phrase
-                .trimmingCharacters(in: .whitespacesAndNewlines)
-                .folding(options: [.caseInsensitive, .widthInsensitive], locale: .current)
+            let phrase = normalizedPhrase(rule.phrase)
             guard !phrase.isEmpty else { continue }
             for range in occurrenceRanges(of: phrase, in: folded, limit: 3) {
                 candidates.append(MatchCandidate(ruleIndex: ruleIndex, range: range, phraseLength: range.length))
@@ -97,7 +99,7 @@ public enum ScoreEngine {
 
         var points = 0.0
         var reasons: [String] = []
-        for (index, rule) in profile.rules.enumerated() {
+        for (index, rule) in rules.enumerated() {
             guard let count = matchCounts[index] else { continue }
             points += rule.weight * Double(count)
             reasons.append(count == 1 ? rule.reason : "\(rule.reason) ×\(count)")
@@ -122,6 +124,16 @@ public enum ScoreEngine {
     }
 
     private static func occurrenceRanges(of phrase: String, in text: String, limit: Int) -> [NSRange] {
+        if phrase.unicodeScalars.contains(where: { $0.isASCII && CharacterSet.letters.contains($0) }) {
+            let escaped = NSRegularExpression.escapedPattern(for: phrase)
+            let pattern = "(?<![\\p{L}\\p{N}_])\(escaped)(?![\\p{L}\\p{N}_])"
+            guard let regex = try? NSRegularExpression(pattern: pattern) else { return [] }
+            return Array(regex.matches(
+                in: text,
+                range: NSRange(location: 0, length: (text as NSString).length)
+            ).prefix(limit).map(\.range))
+        }
+
         let haystack = text as NSString
         let needleLength = (phrase as NSString).length
         guard needleLength > 0 else { return [] }
@@ -130,11 +142,62 @@ public enum ScoreEngine {
         while ranges.count < limit, searchRange.length > 0 {
             let found = haystack.range(of: phrase, options: [], range: searchRange)
             guard found.location != NSNotFound else { break }
-            ranges.append(found)
+            if !isNeutralKoreanContext(phrase: phrase, range: found, text: haystack) {
+                ranges.append(found)
+            }
             let next = found.location + found.length
             searchRange = NSRange(location: next, length: haystack.length - next)
         }
         return ranges
+    }
+
+    private static func isNeutralKoreanContext(
+        phrase: String,
+        range: NSRange,
+        text: NSString
+    ) -> Bool {
+        let before = text.substring(to: range.location)
+        let after = text.substring(from: range.location + range.length)
+
+        switch phrase {
+        case "시발":
+            return hasPrefix(after, pattern: "^점")
+        case "새끼":
+            return hasPrefix(after, pattern: "^\\s*(?:손가락|고양이|강아지|토끼|동물)")
+                || hasSuffix(before, pattern: "(?:고양이|강아지|돼지|토끼|동물)\\s*$")
+        case "쓰레기":
+            return hasPrefix(after, pattern: "^\\s*(?:통|봉투|수거|분리수거|배출|처리)")
+                || hasSuffix(before, pattern: "(?:생활|음식물|재활용)\\s*$")
+        case "꺼져":
+            return hasPrefix(after, pattern: "^\\s*(?:있|버렸|버린|버림)")
+                && hasSuffix(before, pattern: "(?:화면|불|전원|모니터|컴퓨터|배터리|기기|앱)\\s*(?:이|가)?\\s*$")
+        case "졸라":
+            return hasPrefix(after, pattern: "^\\s*매")
+        default:
+            return false
+        }
+    }
+
+    private static func hasPrefix(_ text: String, pattern: String) -> Bool {
+        guard let regex = try? NSRegularExpression(pattern: pattern) else { return false }
+        return regex.firstMatch(
+            in: text,
+            range: NSRange(location: 0, length: (text as NSString).length)
+        ) != nil
+    }
+
+    private static func hasSuffix(_ text: String, pattern: String) -> Bool {
+        guard let regex = try? NSRegularExpression(pattern: pattern) else { return false }
+        return regex.firstMatch(
+            in: text,
+            range: NSRange(location: 0, length: (text as NSString).length)
+        ) != nil
+    }
+
+    private static func normalizedPhrase(_ phrase: String) -> String {
+        phrase
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .folding(options: [.caseInsensitive, .widthInsensitive], locale: .current)
     }
 
     private static func canonical(_ lhs: ScoredEvent, _ rhs: ScoredEvent) -> ScoredEvent {
