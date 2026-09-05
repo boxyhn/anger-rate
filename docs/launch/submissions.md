@@ -49,7 +49,7 @@ MIT 오픈소스이며 첫 공개 미리보기입니다. DMG는 Apple Silicon/ma
 
 ## Additional channels
 
-- Mac Apps Daily: free editorial form prepared at https://macappsdaily.com/submit . Contact email pending; not submitted. General contact email accepted; no app-domain requirement shown. Original artwork upload is optional in the form.
+- Mac Apps Daily: free editorial submission sent using the maker-provided contact email. Observed POST /submissions, HTTP 302 back to /submit, HTTP 200 and a cleared form. No explicit receipt message or submission ID was displayed, so editorial acceptance and publication remain unconfirmed. Do not resubmit without checking for a receipt. Contact email is not stored in this public document.
 - open-source-mac-os-apps: listing PR submitted, open for maintainer review: https://github.com/serhii-londar/open-source-mac-os-apps/pull/1339 . Not yet merged/listed.
 - Uneed: free waiting-line route exists, but account registration is required. Not submitted. https://help.uneed.best/getting-started/how-to-submit-your-first-product
 - Thriftmac: excluded for now; its directory explicitly excludes betas, while AngerRate 0.1.0 is a public preview. https://www.thriftmac.com/about
