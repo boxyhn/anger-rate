@@ -4,6 +4,13 @@ import Foundation
 public enum SessionParser {
     public static func parse(line: Data, source: String, sessionID: String) -> SessionMessage? {
         guard let object = try? JSONSerialization.jsonObject(with: line) as? [String: Any],
+              let message = parse(object: object, source: source, sessionID: sessionID)
+        else { return nil }
+        return message
+    }
+
+    static func parse(object: [String: Any], source: String, sessionID: String) -> SessionMessage? {
+        guard
               let timestamp = parseDate(object["timestamp"] ?? object["created_at"] ?? object["createdAt"])
         else { return nil }
 
