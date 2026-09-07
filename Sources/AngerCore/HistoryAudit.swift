@@ -189,59 +189,61 @@ public final class HistoryAuditor: @unchecked Sendable {
 
             do {
                 try streamLines(in: file, isCancelled: isCancelled) { lineResult in
-                    switch lineResult {
-                    case .oversized:
-                        report.oversizedLines += 1
-                    case .line(let line):
-                        guard let object = try? JSONSerialization.jsonObject(with: line) as? [String: Any] else {
-                            report.malformedLines += 1
-                            return
-                        }
-                        guard isPotentialUserRecord(object) else { return }
-
-                        let parsedSource: String
-                        let message: SessionMessage?
-                        if let parsed = SessionParser.parse(line: line, source: source, sessionID: sessionID) {
-                            parsedSource = source
-                            message = parsed
-                        } else {
-                            parsedSource = source == "claude" ? "codex" : "claude"
-                            message = SessionParser.parse(line: line, source: parsedSource, sessionID: sessionID)
-                        }
-                        guard let message else { return }
-                        report.userMessages += 1
-                        if archived { report.archiveMessages += 1 }
-
-                        let kind = recordKind(object, source: parsedSource)
-                        let copyKey = crossShapeKey(message: message, sessionID: sessionID)
-                        let isCopy = copyRecords[copyKey]?.contains {
-                            $0.kind != .other && kind != .other && $0.kind != kind
-                                && abs($0.timestamp.timeIntervalSince(message.timestamp)) <= 1
-                        } == true
-                        if kind != .other {
-                            copyRecords[copyKey, default: []].append(CopyRecord(kind: kind, timestamp: message.timestamp))
-                            if copyRecords[copyKey]!.count > 8 {
-                                copyRecords[copyKey]!.removeFirst(copyRecords[copyKey]!.count - 8)
+                    autoreleasepool {
+                        switch lineResult {
+                        case .oversized:
+                            report.oversizedLines += 1
+                        case .line(let line):
+                            guard let object = try? JSONSerialization.jsonObject(with: line) as? [String: Any] else {
+                                report.malformedLines += 1
+                                return
                             }
-                        }
-                        guard !isCopy, seenIDs.insert(message.id).inserted else { return }
+                            guard isPotentialUserRecord(object) else { return }
 
-                        report.uniqueMessages += 1
-                        for phrase in normalizedPhrases(message.text) {
-                            phraseCounts[phrase, default: 0] += 1
-                        }
-
-                        let sampleMessage = bounded(message)
-                        let stratum = sampleStratum(message: message, file: file)
-                        if looksFrustrated(message.text) {
-                            addSample(sampleMessage, stratum: stratum, salt: "anger", to: &frustrationSamples)
-                            if let previousUniqueMessage {
-                                addSample(bounded(previousUniqueMessage), stratum: stratum, salt: "context-\(message.id)", to: &frustrationSamples)
+                            let parsedSource: String
+                            let message: SessionMessage?
+                            if let parsed = SessionParser.parse(object: object, source: source, sessionID: sessionID) {
+                                parsedSource = source
+                                message = parsed
+                            } else {
+                                parsedSource = source == "claude" ? "codex" : "claude"
+                                message = SessionParser.parse(object: object, source: parsedSource, sessionID: sessionID)
                             }
-                        } else {
-                            addSample(sampleMessage, stratum: stratum, salt: "neutral", to: &neutralSamples)
+                            guard let message else { return }
+                            report.userMessages += 1
+                            if archived { report.archiveMessages += 1 }
+
+                            let kind = recordKind(object, source: parsedSource)
+                            let copyKey = crossShapeKey(message: message, sessionID: sessionID)
+                            let isCopy = copyRecords[copyKey]?.contains {
+                                $0.kind != .other && kind != .other && $0.kind != kind
+                                    && abs($0.timestamp.timeIntervalSince(message.timestamp)) <= 1
+                            } == true
+                            if kind != .other {
+                                copyRecords[copyKey, default: []].append(CopyRecord(kind: kind, timestamp: message.timestamp))
+                                if copyRecords[copyKey]!.count > 8 {
+                                    copyRecords[copyKey]!.removeFirst(copyRecords[copyKey]!.count - 8)
+                                }
+                            }
+                            guard !isCopy, seenIDs.insert(message.id).inserted else { return }
+
+                            report.uniqueMessages += 1
+                            for phrase in normalizedPhrases(message.text) {
+                                phraseCounts[phrase, default: 0] += 1
+                            }
+
+                            let sampleMessage = bounded(message)
+                            let stratum = sampleStratum(message: message, file: file)
+                            if looksFrustrated(message.text) {
+                                addSample(sampleMessage, stratum: stratum, salt: "anger", to: &frustrationSamples)
+                                if let previousUniqueMessage {
+                                    addSample(bounded(previousUniqueMessage), stratum: stratum, salt: "context-\(message.id)", to: &frustrationSamples)
+                                }
+                            } else {
+                                addSample(sampleMessage, stratum: stratum, salt: "neutral", to: &neutralSamples)
+                            }
+                            previousUniqueMessage = message
                         }
-                        previousUniqueMessage = message
                     }
                 }
                 report.readFiles += 1
@@ -277,41 +279,45 @@ public final class HistoryAuditor: @unchecked Sendable {
         var discardingOversizedLine = false
 
         while true {
-            if isCancelled() { throw AuditCancelled() }
-            let chunk = try handle.read(upToCount: chunkSize) ?? Data()
-            if chunk.isEmpty { break }
-            var cursor = chunk.startIndex
+            let shouldContinue = try autoreleasepool {
+                if isCancelled() { throw AuditCancelled() }
+                let chunk = try handle.read(upToCount: chunkSize) ?? Data()
+                if chunk.isEmpty { return false }
+                var cursor = chunk.startIndex
 
-            while cursor < chunk.endIndex {
-                if discardingOversizedLine {
-                    guard let newline = chunk[cursor...].firstIndex(of: 0x0A) else { break }
-                    discardingOversizedLine = false
-                    cursor = chunk.index(after: newline)
-                    continue
-                }
+                while cursor < chunk.endIndex {
+                    if discardingOversizedLine {
+                        guard let newline = chunk[cursor...].firstIndex(of: 0x0A) else { break }
+                        discardingOversizedLine = false
+                        cursor = chunk.index(after: newline)
+                        continue
+                    }
 
-                if let newline = chunk[cursor...].firstIndex(of: 0x0A) {
-                    let segment = chunk[cursor..<newline]
-                    if buffer.count + segment.count > maximumLineSize {
-                        consume(.oversized)
+                    if let newline = chunk[cursor...].firstIndex(of: 0x0A) {
+                        let segment = chunk[cursor..<newline]
+                        if buffer.count + segment.count > maximumLineSize {
+                            consume(.oversized)
+                        } else {
+                            buffer.append(contentsOf: segment)
+                            if !buffer.isEmpty { consume(.line(buffer)) }
+                        }
+                        buffer.removeAll(keepingCapacity: true)
+                        cursor = chunk.index(after: newline)
                     } else {
-                        buffer.append(contentsOf: segment)
-                        if !buffer.isEmpty { consume(.line(buffer)) }
+                        let segment = chunk[cursor...]
+                        if buffer.count + segment.count > maximumLineSize {
+                            consume(.oversized)
+                            buffer.removeAll(keepingCapacity: false)
+                            discardingOversizedLine = true
+                        } else {
+                            buffer.append(contentsOf: segment)
+                        }
+                        break
                     }
-                    buffer.removeAll(keepingCapacity: true)
-                    cursor = chunk.index(after: newline)
-                } else {
-                    let segment = chunk[cursor...]
-                    if buffer.count + segment.count > maximumLineSize {
-                        consume(.oversized)
-                        buffer.removeAll(keepingCapacity: false)
-                        discardingOversizedLine = true
-                    } else {
-                        buffer.append(contentsOf: segment)
-                    }
-                    break
                 }
+                return true
             }
+            if !shouldContinue { break }
         }
         if !discardingOversizedLine, !buffer.isEmpty { consume(.line(buffer)) }
     }

@@ -11,9 +11,9 @@
 결과:
 
 - `dist/AngerRate.app`
-- `dist/AngerRate-0.1.0.dmg`
+- `dist/AngerRate-0.1.1.dmg`
 
-앱 번들은 `app.angerrate.desktop`, 버전 `0.1.0`(빌드 `1`), 최소 macOS `13.0`, 메뉴 막대 전용 `LSUIElement` 설정으로 생성됩니다.
+앱 번들은 `app.angerrate.desktop`, 버전 `0.1.1`(빌드 `2`), 최소 macOS `13.0`, 메뉴 막대 전용 `LSUIElement` 설정으로 생성됩니다.
 
 ## Developer ID 서명
 
@@ -37,13 +37,13 @@ xcrun notarytool store-credentials "AngerRate-notary" \
   --team-id "TEAM_ID" \
   --password "APP_SPECIFIC_PASSWORD"
 
-xcrun notarytool submit dist/AngerRate-0.1.0.dmg \
+xcrun notarytool submit dist/AngerRate-0.1.1.dmg \
   --keychain-profile "AngerRate-notary" \
   --wait
 
-xcrun stapler staple dist/AngerRate-0.1.0.dmg
-xcrun stapler validate dist/AngerRate-0.1.0.dmg
-spctl --assess --type open --context context:primary-signature --verbose=4 dist/AngerRate-0.1.0.dmg
+xcrun stapler staple dist/AngerRate-0.1.1.dmg
+xcrun stapler validate dist/AngerRate-0.1.1.dmg
+spctl --assess --type open --context context:primary-signature --verbose=4 dist/AngerRate-0.1.1.dmg
 ```
 
 `APPLE_ID`, Team ID, 앱 암호는 예시 자리표시자입니다. 실제 값은 셸 기록이나 저장소에 남기지 않는 방식으로 입력해야 합니다. 공증이 성공하고 stapling 검증까지 통과하기 전에는 공증된 배포본으로 안내하지 않습니다.
