@@ -3,7 +3,7 @@ import SwiftUI
 import AngerCore
 
 @main struct AngerRateApp: App {
-    @StateObject private var model: AppModel
+    private var menuController: MenuBarController?
     init() {
         if let index = CommandLine.arguments.firstIndex(of: "--render-demo"), CommandLine.arguments.count > index + 1 {
             NSApplication.shared.setActivationPolicy(.accessory)
@@ -49,14 +49,9 @@ import AngerCore
             }
             exit(0)
         }
-        _model = StateObject(wrappedValue: AppModel())
+        menuController = MenuBarController(model: AppModel())
     }
     var body: some Scene {
-        MenuBarExtra {
-            MainPanel(model: model)
-        } label: {
-            FlameMenuLabel(score: model.score, isAnimating: model.isMonitoring)
-                .accessibilityLabel(AppText(model.appLanguage)("분노 정도", "Anger level") + " \(Int(model.score))")
-        }.menuBarExtraStyle(.window)
+        Settings { EmptyView() }
     }
 }

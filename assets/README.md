@@ -4,4 +4,4 @@
 
 Design prompt: one original polished macOS app icon for AngerRate; a simple friendly coral-orange flame with two dark oval eyes, a calm small mouth and a pale golden inner belly; soft matte clay form centered on a warm ivory rounded-square tile; restrained indie utility aesthetic; legible at 32 pixels; no text, numbers, cat, busy elements, or existing app logo.
 
-`scripts/build-icon.sh` converts the master into standard macOS icon sizes and builds `AppIcon.icns` with `iconutil`. Packaging adds the icon to the app bundle. The menu bar uses the temperature label so it remains readable at small sizes.
+`AppIcon.icns` is the existing packaged icon, preserved byte-for-byte for releases. Packaging copies this file without regenerating visual assets. The legacy `scripts/build-icon.sh` is an optional conversion tool; it is not run by normal packaging. The menu bar uses AngerRate's original animated flame.

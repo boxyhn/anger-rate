@@ -1,4 +1,5 @@
 import CryptoKit
+import Darwin
 import Foundation
 
 public enum SessionParser {
@@ -442,8 +443,9 @@ public final class SessionScanner: @unchecked Sendable {
     }
 
     private func fileSize(_ file: URL) -> UInt64 {
-        let attributes = try? fileManager.attributesOfItem(atPath: file.path)
-        return (attributes?[.size] as? NSNumber)?.uint64Value ?? 0
+        var info = stat()
+        guard lstat(file.path, &info) == 0 else { return 0 }
+        return UInt64(max(0, info.st_size))
     }
 
     private func lastCompleteLineOffset(_ file: URL) -> UInt64 {

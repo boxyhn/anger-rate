@@ -1,20 +1,20 @@
 <p align="center"><img src="assets/app-icon.png" width="128" alt="AngerRate 불꽃 아이콘"></p>
 <h1 align="center">AngerRate</h1>
 <p align="center"><strong>열이 오르는 순간을 알아차리고, 잠깐 쉬어가세요.</strong><br>Codex · Claude Code 사용자를 위한 macOS 메뉴 막대 앱</p>
-<p align="center"><a href="README.md">English</a> · 한국어 · <a href="https://github.com/boxyhn/anger-rate/releases/tag/v0.1.1">v0.1.1 다운로드</a> · <a href="#빠른-시작">설치</a> · <a href="CONTRIBUTING.md">기여하기</a></p>
+<p align="center"><a href="README.md">English</a> · 한국어 · <a href="https://github.com/boxyhn/anger-rate/releases/tag/v0.1.2">v0.1.2 다운로드</a> · <a href="#빠른-시작">설치</a> · <a href="CONTRIBUTING.md">기여하기</a></p>
 <p align="center"><img src="docs/launch/anger-rate-ko.gif" width="680" alt="예시 메시지에 실제 점수 엔진과 불꽃 렌더러가 반응하고 휴식 알림을 한 번 보여 주는 연출 데모"></p>
 <p align="center"><sub>예시 대화에 실제 점수 엔진과 불꽃 렌더러를 사용한 연출 데모입니다. 알림은 재현했으며, 식는 장면은 10분 뒤로 전환됩니다. <a href="docs/launch/anger-rate-ko.mp4">MP4 보기</a>.</sub></p>
 <p align="center"><img src="docs/panel-preview.png" width="360" alt="단색 불꽃, 현재 점수, 최근 변화와 감지 이유를 보여 주는 AngerRate 한국어 메뉴 패널"></p>
 <p align="center"><sub>합성 데이터로 렌더링한 실제 앱 화면입니다.</sub></p>
 
-> 프리뷰 릴리스 · macOS 13+ · SwiftUI · MIT · Apple Silicon용 v0.1.1 제공
+> 프리뷰 릴리스 · macOS 13+ · SwiftUI · MIT · Apple Silicon용 v0.1.2 제공
 
 
 AngerRate는 Codex와 Claude Code에서 내가 보낸 메시지의 언어 신호를 읽어 현재 상태를 움직이는 불꽃으로 보여 주는 macOS 메뉴 막대 앱입니다. 내부 분노 점수는 0–100이며, 100에 도달하면 한 번 알려드립니다. 점수가 50 이하로 내려간 뒤 다시 100에 도달하면 알림이 재활성화됩니다. 이 수치는 감정이나 건강 상태에 대한 진단이 아닙니다. 앱 화면과 알림은 한국어와 영어를 지원합니다.
 
 ## 빠른 시작
 
-요구 사항은 macOS 13 이상입니다. Apple Silicon Mac은 [v0.1.1 릴리스](https://github.com/boxyhn/anger-rate/releases/tag/v0.1.1)에서 DMG를 받을 수 있습니다. 현재 배포본은 ad-hoc 서명되었고 Apple 공증은 받지 않았습니다. 소스에서 빌드하려면 Swift 5.9 이상이 필요합니다. Codex 또는 Claude Code 세션 기록이 있어야 감지와 첫 진단을 사용할 수 있습니다.
+요구 사항은 macOS 13 이상입니다. Apple Silicon Mac은 [v0.1.2 릴리스](https://github.com/boxyhn/anger-rate/releases/tag/v0.1.2)에서 DMG를 받을 수 있습니다. 현재 배포본은 ad-hoc 서명되었고 Apple 공증은 받지 않았습니다. 소스에서 빌드하려면 Swift 5.9 이상이 필요합니다. Codex 또는 Claude Code 세션 기록이 있어야 감지와 첫 진단을 사용할 수 있습니다.
 
 ```sh
 git clone https://github.com/boxyhn/anger-rate.git
@@ -23,7 +23,7 @@ cd anger-rate
 ./scripts/install.sh
 ```
 
-첫 명령은 `dist/AngerRate.app`과 `dist/AngerRate-0.1.1.dmg`를 만듭니다. 두 번째 명령은 앱을 `~/Applications`에 복사하고 엽니다. 기존 앱이 있으면 같은 폴더에 시각이 붙은 백업을 만든 뒤 교체합니다. DMG를 직접 열었다면 AngerRate를 Applications 링크로 드래그해도 됩니다.
+첫 명령은 `dist/AngerRate.app`과 `dist/AngerRate-0.1.2.dmg`를 만듭니다. 두 번째 명령은 앱을 `~/Applications`에 복사하고 엽니다. 기존 앱이 있으면 같은 폴더에 시각이 붙은 백업을 만든 뒤 교체합니다. DMG를 직접 열었다면 AngerRate를 Applications 링크로 드래그해도 됩니다.
 
 현재 제공되는 바이너리는 Apple Silicon Mac에서 빌드·검증했습니다. Intel Mac에서는 소스 빌드가 필요하며 아직 검증하지 않았습니다. 기본 산출물은 Developer ID 서명과 Apple 공증을 거치지 않은 로컬 빌드입니다.
 
@@ -75,3 +75,5 @@ swift run AngerRate
 코드와 저장소에 포함된 자산은 [MIT License](LICENSE)로 제공합니다. 버그 제보, 오탐 사례, 번역 기여를 환영합니다. 세션 원문 대신 개인정보를 제거한 짧은 합성 예시를 사용해 주세요. 자세한 안내는 [CONTRIBUTING.md](CONTRIBUTING.md)에 있습니다.
 
 [RunCat](https://github.com/runcat-dev/RunCatNeo) 같은 작고 친근한 메뉴 막대 유틸리티에서 소개 방식의 영감을 받았습니다. AngerRate는 독립 프로젝트이며 아이콘은 별도로 제작했습니다.
+
+RunCat Neo에서 참고·수정한 레이어 합성 부분의 Apache-2.0 라이선스는 [서드파티 고지](THIRD_PARTY_NOTICES.md)에 명시되어 있습니다.
