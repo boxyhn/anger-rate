@@ -132,6 +132,21 @@ final class SessionScannerTests: XCTestCase {
         XCTAssertEqual(scanner.scanNew().map(\.text), ["brand new session"])
     }
 
+    func testScannerDetectsAppendsThroughSymlinkedSessionRoot() throws {
+        let fixture = try FixtureDirectory(name: ".codex-test/real-sessions")
+        defer { fixture.remove() }
+        let log = fixture.url.appendingPathComponent("session.jsonl")
+        let linkedRoot = fixture.root.appendingPathComponent("linked-sessions")
+        try fixture.writeLine(codexLine(text: "old", second: 0), to: log)
+        try FileManager.default.createSymbolicLink(at: linkedRoot, withDestinationURL: fixture.url)
+        let scanner = SessionScanner(roots: [linkedRoot])
+
+        XCTAssertEqual(scanner.scanNew(), [])
+
+        try fixture.appendLine(codexLine(text: "from symlink root", second: 1), to: log)
+        XCTAssertEqual(scanner.scanNew().map(\.text), ["from symlink root"])
+    }
+
     func testScannerPrefersResponseItemAndCollapsesNearbyEventCopy() throws {
         let fixture = try FixtureDirectory(name: ".codex-test/sessions")
         defer { fixture.remove() }

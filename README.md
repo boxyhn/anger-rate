@@ -8,7 +8,7 @@
   <img alt="Built with SwiftUI" src="https://img.shields.io/badge/SwiftUI-native-F05138?style=flat-square">
   <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/license-MIT-70927C?style=flat-square"></a>
 </p>
-<p align="center">English · <a href="README.ko.md">한국어</a> · <a href="https://github.com/boxyhn/anger-rate/releases/tag/v0.1.1">Download v0.1.1</a> · <a href="#getting-started">Get started</a> · <a href="CONTRIBUTING.md">Contribute</a></p>
+<p align="center">English · <a href="README.ko.md">한국어</a> · <a href="https://github.com/boxyhn/anger-rate/releases/tag/v0.1.2">Download v0.1.2</a> · <a href="#getting-started">Get started</a> · <a href="CONTRIBUTING.md">Contribute</a></p>
 
 <p align="center"><img src="docs/launch/anger-rate-en.gif" width="680" alt="Synthetic coding messages trigger real scoring, animated flame changes, and one illustrated breather alert"></p>
 <p align="center"><sub>Staged demo using sample messages and the real scoring engine and flame renderer. Notification is illustrated; cooldown jumps ahead 10 minutes. <a href="docs/launch/anger-rate-en.mp4">Watch MP4</a>.</sub></p>
@@ -17,7 +17,7 @@
 
 Coding with an AI can get frustrating. AngerRate watches language signals in your local coding sessions and shows them as a small animated flame in your menu bar. At 100, one gentle notification gives you a moment to notice and pause.
 
-**Preview release.** [Download v0.1.1 for Apple Silicon](https://github.com/boxyhn/anger-rate/releases/tag/v0.1.1), or build from source. The downloadable app is ad-hoc signed and not notarized.
+**Preview release.** [Download v0.1.2 for Apple Silicon](https://github.com/boxyhn/anger-rate/releases/tag/v0.1.2), or build from source. The downloadable app is ad-hoc signed and not notarized.
 
 ## Small by design
 
@@ -32,7 +32,7 @@ The flame represents a language-based heuristic, not a clinical assessment. Its 
 
 ## Getting started
 
-You need **macOS 13+** and local Codex or Claude Code session logs. Download the Apple Silicon DMG from the [v0.1.1 release](https://github.com/boxyhn/anger-rate/releases/tag/v0.1.1), or build it yourself with a **Swift 5.9+ toolchain**. AI personalization additionally requires a supported, signed-in CLI; it uses that account's allowance and does not need a separate API key.
+You need **macOS 13+** and local Codex or Claude Code session logs. Download the Apple Silicon DMG from the [v0.1.2 release](https://github.com/boxyhn/anger-rate/releases/tag/v0.1.2), or build it yourself with a **Swift 5.9+ toolchain**. AI personalization additionally requires a supported, signed-in CLI; it uses that account's allowance and does not need a separate API key.
 
 Clone the public repository, then build and install it:
 
@@ -43,7 +43,7 @@ cd anger-rate
 ./scripts/install.sh
 ```
 
-This builds `dist/AngerRate.app` and `dist/AngerRate-0.1.1.dmg`, installs the app in `~/Applications`, and opens it. An existing installation is backed up before replacement. You can also drag the app from the DMG into Applications.
+This builds `dist/AngerRate.app` and `dist/AngerRate-0.1.2.dmg`, installs the app in `~/Applications`, and opens it. An existing installation is backed up before replacement. You can also drag the app from the DMG into Applications.
 
 1. Open AngerRate from Applications and find its flame in the menu bar.
 2. Start with the built-in defaults or run the one-time history review.
@@ -90,12 +90,12 @@ swift run AngerRate
 | `Sources/AngerRate` | Menu bar UI, settings, notifications, app lifecycle |
 | `Tests/AngerCoreTests` | Synthetic fixtures and behavior tests |
 | `assets` | Original app icon and provenance |
-| `scripts` | Reproducible icon, app, and DMG packaging |
+| `scripts` | App and DMG packaging with the existing icon |
 
 Read [the design](docs/DESIGN.md), [verification and remaining gaps](docs/VERIFICATION.md), or [contribution guide](CONTRIBUTING.md). Logs are not a stable public API, and context matching can produce false positives. Sanitized reproductions are especially helpful.
 
 ## License & inspiration
 
-[MIT](LICENSE). Contributions, language improvements, and small usability fixes are welcome.
+[MIT](LICENSE), with Apache-2.0 portions credited in [third-party notices](THIRD_PARTY_NOTICES.md). Contributions, language improvements, and small usability fixes are welcome.
 
 Inspired by the approachable, focused menu bar utility spirit of [RunCat](https://github.com/runcat-dev/RunCatNeo). AngerRate is an independent project with original artwork; it is not affiliated with RunCat, OpenAI, or Anthropic.
